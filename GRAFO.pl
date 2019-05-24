@@ -1,7 +1,7 @@
 % Definición de la base de datos para el grafo
 
 arista("tres rios", "san jose", 8).
-arista(""cartago"", "tres rios", 8).
+arista("cartago", "tres rios", 8).
 arista("cartago", "paraiso", 10).
 arista("paraiso", "cervantes", 4).
 arista("cervantes", "juan vainas", 5).
