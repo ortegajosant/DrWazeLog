@@ -1,4 +1,4 @@
-% Definición de la base de datos
+% Definición de la base de datos para el grafo
 
 arista("tres rios", "san jose", 8).
 arista(""cartago"", "tres rios", 8).
@@ -54,6 +54,9 @@ eliminar([_ | Cola], Cola).
 vacio([]).
 
 % ----------------------------------------------------------------------
+
+% Búsqueda de la ruta más corta para un trayecto en el grafo
+
 % ----------------------------------------------------------------------
 % Verifica que la ruta sea la más corta
 calcularRuta([Cabeza | Ruta], Distancia) :-
@@ -66,6 +69,7 @@ calcularRuta([Cabeza | Ruta], Distancia) :-
 calcularRuta(Ruta, Distancia) :-
     assert(ruta(Ruta, Distancia)).
 
+% Se recorren todos los nodos desde un punto inicial
 recorrerNodos(Inicio, Ruta, Distancia) :-
 	arista(Inicio, Temporal, D),
 	not(miembro(Temporal, Ruta)),
@@ -78,7 +82,10 @@ recorrerNodos(Inicio) :-
 
 recorrerNodos(_).
 
-
+% Verifica la posibilidad del recorrido de un punto a otro
+% Inicio : punto inicial
+% Destino : punto final
+% Final : lista de la ruta buscada para el recorrido
 ir(Inicio, Destino, Final) :-
 	recorrerNodos(Inicio),
 	ruta([Destino|RRuta], Distancia) ->
@@ -89,8 +96,14 @@ ir(Inicio, Destino, Final) :-
           Final = Ruta;
 	writef('There is no route from %w to %w\n', [Inicio, Destino]).
 
+% Verifica que la lista de destinos esté vacía
+% Destinos : Lista
 encontrarCamino(_, Destinos, _) :- vacio(Destinos), !.
 
+% Maneja el ciclo para encontrar el camino más corto
+% Inicio : Inicio de la ruta
+% Destino : Lista con todos los destinos a los que se llegará tomando en cuenta que se el último elemento de la lista es el destino final
+% RutaFinal : Lista de la ruta buscada.
 encontrarCamino(Inicio, Destinos, RutaFinal) :-
     primero(Destinos, DestinoActual),
     writef("\n\nEvaluando %w con %w\n\n", [Inicio, DestinoActual]),
