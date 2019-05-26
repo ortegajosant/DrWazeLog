@@ -25,8 +25,7 @@ leerLinea(P,F,T):- peek_code(X),X == 32,
     leerLinea("",[P|F],T).
 leerLinea(P,F,T):- peek_code(X),
     X == 46,get0(X),
-    inversa([P|F],T),
-    frase(T,[]).
+    inversa([P|F],T).
 
 
 % -----------------------------------------------------------------------
@@ -88,7 +87,7 @@ det(singular,fenenino,tercera,['al'|S],S).
 %-----------------------------------------------
 nom(singular,masculino,['wazeLog'|S],S).
 nom(singular,masculino,['automercado'|S],S).
-nom(singular,_,['supermercado'|S],S).
+nom(singular,masculino,['supermercado'|S],S).
 %-----------------------------------------------
 respuesta(['si'|S],S).
 respuesta(['no'|S],S).
@@ -121,36 +120,71 @@ pClave([S0|S],S):- arista(S0,_,_).
 % Tercera parte
 %
 
-mainWLog():-write("---  BIENVENIDO A WazeLog LA MEJR FORMA DE LLEGAR A SU DESTINO"),
+mainWLog():- tab(30),write("* * *"),nl,
+    write("---  BIENVENIDO A WazeLog LA MEJOR FORMA DE LLEGAR A SU DESTINO"),
     nl,nl,write("- Por Favor indíqueme dónde se encuentra."),nl,
-    leerLinea(R0),analizarRes(R0,O),
+    tab(5),write(">"),
+    leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O),
+
     nl,write("- Muy bien, ¿Cuál es su destino?"),nl,
-    leerLinea(R1),analizarRes(R1,D),
-    nl,write("- Excelente, ¿Tiene algún destino intermedio?"),nl,
-    leerLinea(R3),analizarResSec(R3,L),nl,
+    tab(5),write(">"),
+    leerLinea(R1),aSintac(R1,G1),analizarRes(G1,D),
+
+    nl,write("- Excelente, ¿Tiene algún destino intermedio?"),
+    nl,tab(5),write(">"),
+    leerLinea(R3),aSintac(R3,G3),analizarResSec(G3,L),nl,
+
     inversa([D|L],L0),buscarRuta(O,L0,Rf,Dis),
-    write("- Su ruta sería "),imprimirLista(Rf,[]),write(", la distancia es "),
+    write("- Su ruta sería "),imprimirLista(Rf,[]),write(" la distancia es "),
     write(Dis),write("km"),nl,
     write("- Gracias por usar WazeLog"),
-    nl.
+    nl,nl,mainWLog().
 
 
-imprimirLista([R|Resto],L):- write(R),tab(1), imprimirLista(Resto,L).
+
+
+imprimirLista([R|Resto],L):- write(R),write(","),tab(1), imprimirLista(Resto,L).
+
 imprimirLista(L,L).
 %-----------------------------------------------------------
-analizarRes(R0,O):-buscarpClave(R0,O).
-analizarRes(_,O):- write("- Disculpa, no te he entendido"),nl,write("- Podrías repetir el lugar que me has dicho"),nl,leerLinea(R0),analizarRes(R0,O).
+aSintac(R0,G0):- frase(R0,[]), G0 = R0.
 
-buscarpClave([S0|_],P):- pClave([S0|_],[]), P = S0.
+
+%-----------------------------------------------------------
+% Recibe una lista que representa la respuesta del usuario
+% y compruba si en la respuesta exsite un lugar del grafo.
+analizarRes(R0,O):-buscarpClave(R0,O).
+
+% Cuando no encuetra un lugar del grafo, pide que vuelva a escribir el
+% lugar
+analizarRes(_,O):- write("- Disculpa, no te he entendido"),nl,
+    write("- Podrías repetir el lugar que me has dicho"),nl,
+    tab(5),write(">"),
+    leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O).
+
+buscarpClave([S0|_],S0):- pClave([S0|_],[]),!.
+
 buscarpClave([_|Resto],P):-buscarpClave(Resto,P).
 
 % -----------------------------------------------------------
-analizarResSec(R,L):- buscarPSec(R,L).
-analizarResSec(['no'|_],[]).
+analizarResSec(['no'|_],_).
 
-buscarPSec([S0|_],L):- pSec(S0,L),write("- ¿Dónde se encuentra "),write(S0),write(?),nl,
-    leerLinea(R0),analizarRes(R0,L).
+analizarResSec(R,L):- buscarPSec(R,L).
+
+buscarPSec([S0|_],L):- pSec(S0),nl,
+    write("¿Dónde se encuentra "),
+    nom(Num,Gen,[S0],[]), det(Num,Gen,_,[Det|_],[]),
+    write(Det),tab(1),write(S0),write("?"),nl,
+    tab(5),write(">"),
+    leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O),
+    write("Tienes algún otro destino intermedio"),nl,
+    tab(5),write(">"),
+    leerLinea(Read1),aSintac(Read1,Grama1),
+    analizarResSec(Grama1, Respuesta),
+    concatenar([O],Respuesta,L).
 
 buscarPSec([_|S0],L):- buscarPSec(S0,L).
 
-pSec(['supermercado'|S],S).
+pSec(supermercado).
+
+anadir(T,Lista,[T|Lista]).
