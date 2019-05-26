@@ -1,4 +1,4 @@
-:- module('grafo', [arista/3, buscarRuta/4]).
+:- module('grafo', [arista/3, buscarRuta/4, concatenar/3]).
 
 % Definición de la base de datos para el grafo
 
