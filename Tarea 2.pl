@@ -149,6 +149,10 @@ imprimirLista(L,L).
 %-----------------------------------------------------------
 aSintac(R0,G0):- frase(R0,[]), G0 = R0.
 
+aSintac(_,G3):-write("No le entendí ni picha"),nl,
+    write("Por favor, intente volver a escribi su respueta"),
+    nl,tab(5),write(">"),
+    leerLinea(R3),aSintac(R3,G3).
 
 %-----------------------------------------------------------
 % Recibe una lista que representa la respuesta del usuario

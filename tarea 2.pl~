@@ -128,7 +128,7 @@ mainWLog():- tab(30),write("* * *"),nl,
 
     nl,write("- Muy bien, ¿Cuál es su destino?"),nl,
     tab(5),write(">"),
-    leerLinea(R1),aSintac(R1,G1),analizarRes(G1,D),
+    leerLinea(R1),aSintac(R1,G1),write(G1),analizarRes(G1,D),
 
     nl,write("- Excelente, ¿Tiene algún destino intermedio?"),
     nl,tab(5),write(">"),
@@ -148,7 +148,7 @@ imprimirLista([R|Resto],L):- write(R),write(","),tab(1), imprimirLista(Resto,L).
 imprimirLista(L,L).
 %-----------------------------------------------------------
 aSintac(R0,G0):- frase(R0,[]), G0 = R0.
-
+aSintac(_,[cartago]).
 
 %-----------------------------------------------------------
 % Recibe una lista que representa la respuesta del usuario
