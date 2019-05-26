@@ -1,7 +1,25 @@
 :- module('grafo', [arista/3, buscarRuta/4, concatenar/3]).
 
 % Definición de la base de datos para el grafo
+% Se definen los vertices que pertenecen al grafo, con su respectiva
+% posición en el mapa
+% Composición : vertice( <lugar> , <posición en x> , <posición en y> )
+vertice('san jose', 86, 207).
+vertice('corralillo',106, 425).
+vertice('musgo verde', 270, 355).
+vertice('tres rios', 274, 154).
+vertice('cartago', 444, 307).
+vertice('pacayas', 539, 82).
+vertice('cervantes', 686, 203).
+vertice('paraiso', 614, 306).
+vertice('juan viñas', 789, 119).
+vertice('turrialba', 870, 69).
+vertice('cachi', 841, 307).
+vertice('orosi',723, 444).
 
+% Se definen los aristas que pertenecen al grafo, con su respectiva
+% distancia entre nodos
+% Composición : arista( <Inicio> , <Destino>, <Distancia> )
 arista('tres rios', 'san jose', 8).
 arista('cartago', 'tres rios', 8).
 arista('cartago', 'paraiso', 10).
