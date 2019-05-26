@@ -119,6 +119,12 @@ encontrarCamino(Inicio, Destinos, RutaFinal) :-
     eliminar(SiguienteRuta, Cola),
     concatenar(Ruta, Cola, RutaFinal).
 
+% Es la regla principal para verificar la ruta del grafo
+% Inicio : Inicio del recorrido
+% Destinos : Lista con los destinos que se van a recorrer, el ultimo
+% elemento es el destino final.
+% RutaFinal : Lista con la mejor ruta para el recorrido.
+% Distancia : Distancia total del recorrido.
 buscarRuta(Inicio, Destinos, RutaFinal, Distancia):-
 	encontrarCamino(Inicio, Destinos, RutaFinal),
 	distanciaTotal(RutaFinal, Distancia), !.
