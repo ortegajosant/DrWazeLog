@@ -38,7 +38,7 @@ frase(S0,S):- sintagma_prep(S0,S).
 frase(S0,S):- respuesta(S0,S).
 frase(S0,S):- saludos(S0,S1),
     oracion(S1,S).
-frase(S0,S):-pClave(S0,S).
+frase(S0,S):- pClave(S0,S).
 %-----------------------------------------------
 saludos(S0,S):-saludo(S0,S1),
     nom(_,_,S1,S).
@@ -61,11 +61,14 @@ oracion(S0,S):- pron(Num,Pers,_,S0,S1),
     sintagma_prep(S2,S).
 
 oracion(S0,S):-sintagma_verbal(_,_,S0,S).
+
 %-----------------------------------------------
 sintagma_nominal(Num,Pers,Gen,S0,S):- det(Num,Gen,Pers,S0,S1),
     nom(Num,Gen,S1,S).
 
 sintagma_nominal(_,_,_,S0,S):- nom(_,_,S0,S).
+
+sintagma_nominal(_,_,_,S0,S):- pClave(S0,S).
 
 %-----------------------------------------------
 sintagma_verbal(Num,Pers,S0,S):- verbo(Num,Pers,S0,S).
@@ -83,9 +86,9 @@ sintagma_prep(S0,S):- prep(S0,S1),
 det(singular,masculino,tercera,['el'|S],S).
 det(singular,fenenino,tercera,['al'|S],S).
 %-----------------------------------------------
-nom(singular,masculino,['WazeLog'|S],S).
-nom(singular,masculino,['Automercado'|S],S).
-nom(singular,_,['Supermercado'|S],S).
+nom(singular,masculino,['wazeLog'|S],S).
+nom(singular,masculino,['automercado'|S],S).
+nom(singular,_,['supermercado'|S],S).
 %-----------------------------------------------
 respuesta(['si'|S],S).
 respuesta(['no'|S],S).
@@ -105,30 +108,47 @@ prep(['en'|S],S).
 %-----------------------------------------------
 conector(['que'|S],S).
 %-----------------------------------------------
-saludo(['Hola'|S],S).
-saludo(['Buenos días',S],S).
-saludo(['Buenas noches'|S],S).
+saludo(['hola'|S],S).
+saludo(['buenos días',S],S).
+saludo(['buenas noches'|S],S).
 
 %oracion([el,hombre,come,la,manzana],[]).
 %------------------------------------------------
-pClave([S0|S],S):-arista(S0,_,_).
-
-
+pClave([S0|S],S):- arista(S0,_,_).
 
 
 % ------------------------------------------------------------------------
 % Tercera parte
 %
 
-mainWLog():-write("BIENVENIDO a WazeLog la mejor lógica de llegar a su destino."),
-    nl,nl,write("Por Favor indíqueme dónde se encuentra."),nl,
-    leerLinea(_),
-    nl,write("Muy bien, ¿Cuál es su destino?"),nl,
-    leerLinea(_),
-    nl,write("Excelente, ¿Tiene algún destino intermedio?"),nl,
-    leerLinea(_),
-    nl,write("¿Dónde se encuentra AutoMercado?"),nl,
-    leerLinea(_),
-    nl,write("¿Algún destino intermedio?"),nl,
-    leerLinea(_),
-    nl,write("Fin").
+mainWLog():-write("---  BIENVENIDO A WazeLog LA MEJR FORMA DE LLEGAR A SU DESTINO"),
+    nl,nl,write("- Por Favor indíqueme dónde se encuentra."),nl,
+    leerLinea(R0),analizarRes(R0,O),
+    nl,write("- Muy bien, ¿Cuál es su destino?"),nl,
+    leerLinea(R1),analizarRes(R1,D),
+    nl,write("- Excelente, ¿Tiene algún destino intermedio?"),nl,
+    leerLinea(R3),analizarResSec(R3,L),nl,
+    inversa([D|L],L0),buscarRuta(O,L0,Rf,Dis),
+    write("- Su ruta sería "),imprimirLista(Rf,[]),write(", la distancia es "),
+    write(Dis),write("km"),nl,
+    write("- Gracias por usar WazeLog"),
+    nl.
+
+
+imprimirLista([R|Resto],L):- write(R),tab(1), imprimirLista(Resto,L).
+imprimirLista(L,L).
+%-----------------------------------------------------------
+analizarRes(R0,O):-buscarpClave(R0,O).
+analizarRes(_,O):- write("- Disculpa, no te he entendido"),nl,write("- Podrías repetir el lugar que me has dicho"),nl,leerLinea(R0),analizarRes(R0,O).
+
+buscarpClave([S0|_],P):- pClave([S0|_],[]), P = S0.
+buscarpClave([_|Resto],P):-buscarpClave(Resto,P).
+
+% -----------------------------------------------------------
+analizarResSec(R,L):- buscarPSec(R,L).
+analizarResSec(['no'|_],[]).
+
+buscarPSec([S0|_],L):- pSec(S0,L).
+buscarPSec([_|S0],L):- buscarPSec(S0,L).
+
+pSec(['supermercado'|S],S).
