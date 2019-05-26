@@ -38,7 +38,7 @@ arista('musgo verde', 'corralillo', 6).
 
 % Definición de reglas varias.
 
-concatenar([],L,L).
+concatenar([],L,L) :- !.
 concatenar([X|L1],L2,[X|L3]):- concatenar(L1,L2,L3).
 
 inversa([], []).
@@ -49,9 +49,9 @@ miembro(Elem,[_|Cola]):- miembro(Elem,Cola).
 
 primero([Elemento | _], Elemento).
 
-eliminar([_ | Cola], Cola).
+eliminar([_| Cola], Cola).
 
-vacio([]).
+%sumaLista([Elem | Cola], Suma) :-
 
 % ----------------------------------------------------------------------
 
@@ -60,9 +60,8 @@ vacio([]).
 % ----------------------------------------------------------------------
 % Verifica que la ruta sea la más corta
 calcularRuta([Cabeza | Ruta], Distancia) :-
-	ruta([Cabeza | Visitados], D), !, Distancia < D,
+	ruta([Cabeza | _], D), !, Distancia < D,
 	retract(ruta([Cabeza | _],_)),
-	writef('%w is closer than %w\n', [[Cabeza | Ruta], [Cabeza | Visitados]]),
 	assert(ruta([Cabeza | Ruta], Distancia)).
 
 %Agrega una posible ruta a los recorridos
@@ -88,17 +87,25 @@ recorrerNodos(_).
 % Final : lista de la ruta buscada para el recorrido
 ir(Inicio, Destino, Final) :-
 	recorrerNodos(Inicio),
-	ruta([Destino|RRuta], Distancia) ->
-	  inversa([Destino|RRuta], Ruta),
-	  SumaDistancia is round(Distancia),
-          writef('Shortest path is %w with distance %w\n',
-	       [Ruta, SumaDistancia]),
-          Final = Ruta;
-	writef('There is no route from %w to %w\n', [Inicio, Destino]).
+	ruta([Destino|RRuta], _) ->
+	inversa([Destino|RRuta], Final).
+
+% Obtiene la distancia del recorrido de la ruta
+distanciaTotal([_], Distancia) :- Distancia is 0,!.
+
+% Parámetros:
+% Lista con los lugares a los que se puede llegar
+% Distancia : Es la distancia total que se va a recorrer.
+distanciaTotal([Primero | Ruta], Distancia):-
+	primero(Ruta, Segundo),
+	arista(Primero, Segundo, D),
+	distanciaTotal(Ruta, Dist),
+	Distancia is D + Dist.
 
 % Verifica que la lista de destinos esté vacía
 % Destinos : Lista
-encontrarCamino(_, Destinos, _) :- vacio(Destinos), !.
+encontrarCamino(_, [], _) :- !.
+
 
 % Maneja el ciclo para encontrar el camino más corto
 % Inicio : Inicio de la ruta
@@ -106,11 +113,24 @@ encontrarCamino(_, Destinos, _) :- vacio(Destinos), !.
 % RutaFinal : Lista de la ruta buscada.
 encontrarCamino(Inicio, Destinos, RutaFinal) :-
     primero(Destinos, DestinoActual),
-    writef('\n\nEvaluando %w con %w\n\n', [Inicio, DestinoActual]),
     ir(Inicio, DestinoActual, Ruta),
     eliminar(Destinos, ColaDestinos),
     encontrarCamino(DestinoActual, ColaDestinos, SiguienteRuta),
     eliminar(SiguienteRuta, Cola),
     concatenar(Ruta, Cola, RutaFinal).
+
+% Es la regla principal para verificar la ruta del grafo
+% Inicio : Inicio del recorrido
+% Destinos : Lista con los destinos que se van a recorrer, el ultimo
+% elemento es el destino final.
+% RutaFinal : Lista con la mejor ruta para el recorrido.
+% Distancia : Distancia total del recorrido.
+buscarRuta(Inicio, Destinos, RutaFinal, Distancia):-
+	encontrarCamino(Inicio, Destinos, RutaFinal),
+	distanciaTotal(RutaFinal, Distancia), !.
+
+
+
+
 
 
