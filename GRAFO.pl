@@ -1,4 +1,4 @@
-:- module('grafo', [arista/3, buscarRuta/4, concatenar/3]).
+:- module('grafo', [arista/3, buscarRuta/4, concatenar/3, inversa/2]).
 
 % Definición de la base de datos para el grafo
 % Se definen los vertices que pertenecen al grafo, con su respectiva

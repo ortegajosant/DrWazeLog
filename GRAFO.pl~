@@ -24,8 +24,8 @@ arista('tres rios', 'san jose', 8).
 arista('cartago', 'tres rios', 8).
 arista('cartago', 'paraiso', 10).
 arista('paraiso', 'cervantes', 4).
-arista('cervantes', 'juan vainas', 5).
-arista('juan vainas', 'turrialba', 12).
+arista('cervantes', 'juan viñas', 5).
+arista('juan viñas', 'turrialba', 12).
 arista('turrialba', 'pacayas', 18).
 arista('san jose', 'corralillo', 22).
 arista('corralillo', 'san jose', 22).
