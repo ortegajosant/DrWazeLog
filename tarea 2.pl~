@@ -68,9 +68,11 @@ siguienteLista([S|_],S).
 restoLista([_|Resto],Resto).
 
 
-% --------------------------------------------------------------------------------------------
-%                          Gramatica permitida en la conversacion.
-% -----------------------------------------------------------------------
+% ------------------------------------------------------------------------------------
+%                  Gramatica permitida en la conversacion.
+% ------------------------------------------------------------------------
+%
+%
 
 
 % Reglas que debe cumplir una frase para ser aceptada.
@@ -167,7 +169,7 @@ sintagma_prep(S0,S):- prep(S0,S1),
 %----------------------------------------------
 
 % Hechos que contienen los determinates aceptados.
-% det(Numero, Genero, [determinante]).
+% det(Numero, Genero, [determinante],lista).
 det(singular,masculino,tercera,['el'|S],S).
 det(singular,masculino,tercera,['al'|S],S).
 det(singular, femenino, tercera, ['la'|S], S).
@@ -176,7 +178,7 @@ det(singular, femenino, tercera, ['la'|S], S).
 
 %Hechos con los nombres que forman el nucleo de los
 %  sintagmas nominales.
-%  nom(Numero, Genero,[nombre]).
+%  nom(Numero, Genero,[nombre],lista).
 nom(singular,masculino,['wazeLog'|S],S).
 nom(singular,masculino,['automercado'|S],S).
 nom(singular,masculino,['supermercado'|S],S).
@@ -196,14 +198,14 @@ nom(singular, masculino, ['templo'|S], S).
 %-----------------------------------------------
 
 %Terminal de una frase formada por una respuesta cerrada.
-% respuesta([respuesta])
+% respuesta([respuesta],lista)
 respuesta(['si'|S],S).
 respuesta(['no'|S],S).
 
 %-----------------------------------------------
 
 %Hechos con los infinitos aceptados.
-%infi([infinitivo]).
+%infi([infinitivo],lista).
 infi(['pasar'|S],S).
 infi(['asistir'|S], S).
 infi(['viajar'|S], S).
@@ -212,14 +214,14 @@ infi(['ir'|S], S).
 %-----------------------------------------------
 
 %Hechos con los pronombres aceptados.
-%pron(Numero, Persona, [pronombre]).
+%pron(Numero, Persona,Genero [pronombre],lista).
 pron(singular,primera,_,['me'|S],S).
 pron(_,tercera,_,['se'|S],S).
 
 %-----------------------------------------------
 
 %Hechos que definen los verbos aceptados.
-%verbo(Numero, Persona,[verbo]).
+%verbo(Numero, Persona,[verbo],lista).
 verbo(singular,primera,['estoy'|S],S).
 verbo(singular,primera,['tengo'|S],S).
 verbo(singular,_,['gustaría'|S],S).
@@ -287,22 +289,30 @@ mainWazeLog(['si'|_]):- run.
 
 % Regla principal, para llegar al final las reglas que la componen deben
 % ser verdaderas.
+% R : Listas con la lecturas de frases de usuarios
+% G : Lista con la la frase revisada por la gramatica
+% O : Origen donde se encuentra el usuario
+% D : Destino
+% L : Lista con los puntos intermedios de la ruta
 run :- tab(30),write("* * *"),nl,
     write("---  BIENVENIDO A WazeLog LA MEJOR FORMA DE LLEGAR A SU DESTINO"),
     nl,nl,write("- Por Favor indíqueme dónde se encuentra."),nl,
     tab(5),write(">"),
-    leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O),
+    leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O), % Lectura para la primera pegunta
+                                                    % La respuesta es correcta si lleva un nombre de lugar
 
     nl,write("- Muy bien, ¿Cuál es su destino?"),nl,
     tab(5),write(">"),
-    leerLinea(R1),aSintac(R1,G1),analizarRes(G1,D),
+    leerLinea(R1),aSintac(R1,G1),analizarRes(G1,D), % Lectura de la segunda pregunta.
+                                                    % La respuesta es correcta si lleva un nombre de algun lugar
 
     nl,write("- Excelente, ¿Tiene algún destino intermedio?"),
     nl,tab(5),write(">"),
-    leerLinea(R2),aSintac(R2,G2),analizarResSec(G2,L),nl,
+    leerLinea(R2),aSintac(R2,G2),analizarResSec(G2,L),nl,   % Si/No o algun tipo de lugar
 
+    % Preperacion de la ruta y respuesta que de da.
     inversa([D|L],L0),buscarRuta(O,L0,Rf,Dis),
-    write("- Su ruta sería "),imprimirLista(Rf,[]),write("la distancia es "),
+    write("- Su ruta sería "),imprimirLista(Rf),write("la distancia es de "),
     write(Dis),write("km"),nl,
     write("- Gracias por usar WazeLog"),
     nl,nl,write("- Desea buscar otra ruta en WazeLog"),nl,
@@ -311,12 +321,16 @@ run :- tab(30),write("* * *"),nl,
 
 % ----------------------------------------------------------
 
-%Regla qe escribe puntos de una lista en pantalla.
-imprimirLista([R|Resto],L):- write(R),write(","),tab(1),
-    imprimirLista(Resto,L).
+%Regla qe escribe elemetos de una lista en pantalla.
+imprimirLista([R|Resto]):- write(R),write(","),tab(1),
+    imprimirLista(Resto).
 
-imprimirLista(L,L).
+imprimirLista(L).
 %-----------------------------------------------------------
+
+%Define las reglas para el analisis sitacta.
+%R0 : Lecto de la entreda del usario.
+%G0 : Lista con la frase si es correcto.
 aSintac(R0,G0):- frase(R0,[]), G0 = R0.
 
 aSintac(_,G3):-write("- No le entendí ni picha"),nl,
@@ -328,7 +342,9 @@ aSintac(_,G3):-write("- No le entendí ni picha"),nl,
 
 % Recibe una lista que representa la respuesta del usuario
 % y compruba si en la respuesta exsite un lugar del grafo.
-% Esta regla se usa para analizar si la palalabra es un punto Clave
+% Esta regla se usa para analizar si la palalabra es una palabra Clave
+% R0 : Lecutra
+% O :
 analizarRes(R0,O):-buscarpClave(R0,O).
 
 % Cuando no encuetra un lugar del grafo, pide que vuelva a escribir el
@@ -338,11 +354,21 @@ analizarRes(_,O):- write("- Disculpa, no te he entendido"),nl,
     tab(5),write(">"),
     leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O).
 
+%------------------------------------------------------------
+
+% Regla para la buusqueda de palabras claves. Este tipo de palabras
+% clave son los nombre de los nodos del grafo. Se utiliza la misma regla
+% de pClave de la gramatica para hacer la consulta a grafo.
 buscarpClave([S0|_],S0):- pClave([S0|_],[]),!.
 
 buscarpClave([_|Resto],P):-buscarpClave(Resto,P).
 
 % -----------------------------------------------------------
+
+% Reglas para el analisis de respuestas secundarias, como por ejemplo
+% lugares intermedios que tiene que visitar, Esta regla analiza el tipo
+% de lugar y pregunta por el lugar donde se encuentra la parada
+% intermedia.
 analizarResSec(['no'|_],_).
 
 analizarResSec(['si'|_],L):- write("¿Dónde se ubica el destino intermedio"),nl,
@@ -356,7 +382,10 @@ analizarResSec(['si'|_],L):- write("¿Dónde se ubica el destino intermedio"),nl,
     concatenar([O],Respuesta,L).
 
 analizarResSec(R,L):- buscarPSec(R,L).
+%-------------------------------------------------------------
 
+% Reglas que busca palabras secundarias, las palabras secundarias son
+% por ejemplo la plaza, el supermercado,...
 buscarPSec([S0|_],L):- pSec(S0),nl,
     write("- ¿Dónde se encuentra "),
     nom(Num,Gen,[S0],[]), det(Num,Gen,_,[Det|_],[]),
@@ -371,4 +400,7 @@ buscarPSec([S0|_],L):- pSec(S0),nl,
 
 buscarPSec([_|S0],L):- buscarPSec(S0,L).
 
+
+%Regla para buscar palabras secundarias.
+%Realiza una consulta al heho nombre de la gramatica
 pSec(S) :- nom(_, _,[S|_], _).
