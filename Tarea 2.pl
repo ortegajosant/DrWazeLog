@@ -44,6 +44,8 @@ saludos(S0,S):-saludo(S0,S1),
 saludos(S0,S):-saludo(S0,S).
 
 %-----------------------------------------------
+oracion(S0, S1):- sintagma_nominal(_, _, _, S0, S1).
+
 oracion(S0,S):- sintagma_nominal(Num,Pers,_,S0,S1),
     sintagma_verbal(Num,Pers,S1,S).
 
@@ -81,35 +83,77 @@ sintagma_verbal(_,_,S0,S):- verbo(_,_,S0,S1),
 %-----------------------------------------------
 sintagma_prep(S0,S):- prep(S0,S1),
     sintagma_nominal(_,_,_,S1,S).
+
 %-----------------------------------------------
 det(singular,masculino,tercera,['el'|S],S).
-det(singular,fenenino,tercera,['al'|S],S).
+det(singular,masculino,tercera,['al'|S],S).
+det(singular, femenino, tercera, ['la'|S], S).
+
 %-----------------------------------------------
 nom(singular,masculino,['wazeLog'|S],S).
 nom(singular,masculino,['automercado'|S],S).
 nom(singular,masculino,['supermercado'|S],S).
+nom(singular,masculino,['estadio'|S],S).
+nom(singular, femenino, ['plaza'|S], S).
+nom(singular, femenino, ['fuente'|S], S).
+nom(singular, femenino, ['universidad'|S], S).
+nom(singular, femenino, ['escuela'|S], S).
+nom(singular, masculino, ['colegio'|S],S).
+nom(singular, masculino, ['palí'|S], S).
+nom(singular, masculino, ['megasuper'|S], S).
+nom(singular, femenino, ['casa'|S], S).
+nom(singular, masculino, ['hospital'|S], S).
+nom(singular, femenino, ['iglesia'|S], S).
+nom(singular, masculino, ['templo'|S], S).
+
 %-----------------------------------------------
 respuesta(['si'|S],S).
 respuesta(['no'|S],S).
+
 %-----------------------------------------------
 infi(['pasar'|S],S).
+infi(['asistir'|S], S).
+infi(['viajar'|S], S).
+infi(['ir'|S], S).
+
 %-----------------------------------------------
 pron(singular,primera,_,['me'|S],S).
 pron(_,tercera,_,['se'|S],S).
+
 %-----------------------------------------------
 verbo(singular,primera,['estoy'|S],S).
 verbo(singular,primera,['tengo'|S],S).
 verbo(singular,_,['gustaría'|S],S).
 verbo(singular,tercera,['ubica'|S],S).
 verbo(singular,primera,['ubico'|S],S).
+verbo(singular, primera, ['voy'|S],S).
+verbo(singular, primera, ['desplazo'|S], S).
+verbo(plural, primera, ['vamos'|S], S).
+verbo(plural, primera, ['estamos'|S], S).
+verbo(plural, primera, ['tenemos'|S], S).
+verbo(singular, primera, ['manejo'|S], S).
+verbo(singular, primera, ['camino'|S], S).
+verbo(singular, primera, ['dirijo'|S], S).
+verbo(singular, primera, ['encuentro'|S], S).
+verbo(singular, primera, ['dirijo'|S], S).
+
 %-----------------------------------------------
 prep(['en'|S],S).
+prep(['a'|S], S).
+prep(['para'|S], S).
+prep(['por'|S], S).
+prep(['hasta'|S],S).
+prep(['hacia'|S], S).
+
 %-----------------------------------------------
 conector(['que'|S],S).
+
+
 %-----------------------------------------------
 saludo(['hola'|S],S).
 saludo(['buenos días',S],S).
 saludo(['buenas noches'|S],S).
+saludo(['tuanis'|S], S).
 
 %oracion([el,hombre,come,la,manzana],[]).
 %------------------------------------------------
@@ -189,6 +233,4 @@ buscarPSec([S0|_],L):- pSec(S0),nl,
 
 buscarPSec([_|S0],L):- buscarPSec(S0,L).
 
-pSec(supermercado).
-
-anadir(T,Lista,[T|Lista]).
+pSec(S) :- nom(_, _,[S|_], _).
