@@ -17,7 +17,7 @@ leerLinea(T):- peek_code(X),X \== 46,
     leerLinea("",[],T).
 leerLinea(P,F,T):- peek_code(X),
     X \== 46, X \== 32,
-    get(Y), char_code(A,Y),
+    get(Y), char_code(A,Y),to_lower(A).
     atomic_concat(P,A,Result),
     leerLinea(Result,F,T).
 leerLinea(P,F,T):- peek_code(X),X == 32,
@@ -148,7 +148,11 @@ imprimirLista([R|Resto],L):- write(R),write(","),tab(1), imprimirLista(Resto,L).
 imprimirLista(L,L).
 %-----------------------------------------------------------
 aSintac(R0,G0):- frase(R0,[]), G0 = R0.
-aSintac(_,[cartago]).
+
+aSintac(_,G3):-write("No le entendí ni picha"),nl,
+    write("Por favor, intente volver a escribi su respueta"),
+    nl,tab(5),write(">"),
+    leerLinea(R3),aSintac(R3,G3).
 
 %-----------------------------------------------------------
 % Recibe una lista que representa la respuesta del usuario

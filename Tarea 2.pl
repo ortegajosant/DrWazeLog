@@ -17,8 +17,8 @@ leerLinea(T):- peek_code(X),X \== 46,
     leerLinea("",[],T).
 leerLinea(P,F,T):- peek_code(X),
     X \== 46, X \== 32,
-    get(Y), char_code(A,Y),
-    atomic_concat(P,A,Result),
+    get(Y), char_code(A,Y),downcase_atom(A,LowerCase),
+    atomic_concat(P,LowerCase,Result),
     leerLinea(Result,F,T).
 leerLinea(P,F,T):- peek_code(X),X == 32,
     get0(X),
