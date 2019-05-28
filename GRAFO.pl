@@ -1,10 +1,9 @@
-:- module('grafo', [arista/3, buscarRuta/4, concatenar/3, vertice/3]).
+:- module('grafo', [arista/3, vertice/3, buscarRuta/4, concatenar/3, inversa/2]).
 
-% Definición de la base de datos para el grafo
+% Definicion de la base de datos para el grafo
 % Se definen los vertices que pertenecen al grafo, con su respectiva
-% posición en el mapa
-% Composición : vertice( <lugar> , <posición en x> , <posición en y> )
-
+% posicion en el mapa
+% ComposiciÃ³n : vertice( <lugar> , <posiciÃ³n en x> , <posiciÃ³n en y> )
 vertice('san jose', 86, 207).
 vertice('corralillo',106, 425).
 vertice('musgo verde', 270, 355).
@@ -13,21 +12,20 @@ vertice('cartago', 444, 307).
 vertice('pacayas', 539, 82).
 vertice('cervantes', 686, 203).
 vertice('paraiso', 614, 306).
-vertice('juan viñas', 789, 119).
+vertice('juan vinas', 789, 119).
 vertice('turrialba', 870, 69).
 vertice('cachi', 841, 307).
 vertice('orosi',723, 444).
 
 % Se definen los aristas que pertenecen al grafo, con su respectiva
 % distancia entre nodos
-% Composición : arista( <Inicio> , <Destino>, <Distancia> )
-
+% Composicion : arista( <Inicio> , <Destino>, <Distancia> )
 arista('tres rios', 'san jose', 8).
 arista('cartago', 'tres rios', 8).
 arista('cartago', 'paraiso', 10).
 arista('paraiso', 'cervantes', 4).
-arista('cervantes', 'juan viñas', 5).
-arista('juan viñas', 'turrialba', 12).
+arista('cervantes', 'juan vinas', 5).
+arista('juan vinas', 'turrialba', 12).
 arista('turrialba', 'pacayas', 18).
 arista('san jose', 'corralillo', 22).
 arista('corralillo', 'san jose', 22).
@@ -58,7 +56,7 @@ arista('musgo verde', 'corralillo', 6).
     ruta/2.
 
 
-% Definición de reglas varias.
+% Definicion de reglas varias.
 
 concatenar([],L,L) :- !.
 concatenar([X|L1],L2,[X|L3]):- concatenar(L1,L2,L3).
@@ -77,10 +75,10 @@ eliminar([_| Cola], Cola).
 
 % ----------------------------------------------------------------------
 
-% Búsqueda de la ruta más corta para un trayecto en el grafo
+% Busqueda de la ruta mas corta para un trayecto en el grafo
 
 % ----------------------------------------------------------------------
-% Verifica que la ruta sea la más corta
+% Verifica que la ruta sea la mas corta
 calcularRuta([Cabeza | Ruta], Distancia) :-
 	ruta([Cabeza | _], D), !, Distancia < D,
 	retract(ruta([Cabeza | _],_)),
@@ -115,7 +113,7 @@ ir(Inicio, Destino, Final) :-
 % Obtiene la distancia del recorrido de la ruta
 distanciaTotal([_], Distancia) :- Distancia is 0,!.
 
-% Parámetros:
+% Parametros:
 % Lista con los lugares a los que se puede llegar
 % Distancia : Es la distancia total que se va a recorrer.
 distanciaTotal([Primero | Ruta], Distancia):-
@@ -124,14 +122,15 @@ distanciaTotal([Primero | Ruta], Distancia):-
 	distanciaTotal(Ruta, Dist),
 	Distancia is D + Dist.
 
-% Verifica que la lista de destinos esté vacía
+% Verifica que la lista de destinos se encuentre vacia
 % Destinos : Lista
 encontrarCamino(_, [], _) :- !.
 
 
-% Maneja el ciclo para encontrar el camino más corto
+% Maneja el ciclo para encontrar el camino mas corto
 % Inicio : Inicio de la ruta
-% Destino : Lista con todos los destinos a los que se llegará tomando en cuenta que se el último elemento de la lista es el destino final
+% Destino : Lista con todos los destinos a los que se llegara tomando en
+% cuenta que se el ultimo elemento de la lista es el destino final
 % RutaFinal : Lista de la ruta buscada.
 encontrarCamino(Inicio, Destinos, RutaFinal) :-
     primero(Destinos, DestinoActual),
@@ -150,9 +149,3 @@ encontrarCamino(Inicio, Destinos, RutaFinal) :-
 buscarRuta(Inicio, Destinos, RutaFinal, Distancia):-
 	encontrarCamino(Inicio, Destinos, RutaFinal),
 	distanciaTotal(RutaFinal, Distancia), !.
-
-
-
-
-
-
