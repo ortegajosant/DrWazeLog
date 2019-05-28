@@ -11,23 +11,45 @@ import org.jpl7.Query;
 import org.jpl7.Term;
 
 import datos.Consultas;
-
+/**
+ * Clase que define los metodos principales para crear un
+ *  objeto grafo.
+ *  Incluye las variables: 
+ *  			- nodos : Lista.
+ *  			- consultas : objeto de la clase consultas
+ * Incluye los metodos :
+ * 				-addNode
+ * 				- getNodos
+ * 				- buscaNodo
+ * 				- existeNodo 
+ * 				- crearGrafo
+ */
 public class Grafo {
     private List<Nodo> nodos;
     private Consultas consulta = new Consultas();
-    
+    /**
+     * Anade un nodo a la lista para formar un grafo.
+     * @param nodo : Nodo 
+     */
     public void addNode(Nodo nodo) {
         if (nodos == null) {
             nodos = new ArrayList<>();
         }
         nodos.add(nodo);
     }
- 
+    /**
+     * Obtiene la lista de nodos que froman el grafo.
+     * @return list<Nodo> 
+     */
     public List<Nodo> getNodos() {
         return nodos;
     }
- 
-    
+    /**
+     * Busca un nodo con el nombre del lugar
+     * En caso de que exista de devuelve sino lo agrega y devuelve.
+     * @param nombre : String con el nombre 
+     * @return Nodo que conside con el nombre
+     */
     public Nodo buscaNodo(String nombre) {
     	if(nodos != null) {
 	    	for(Integer i = 0; i < nodos.size(); i++) {
@@ -40,7 +62,12 @@ public class Grafo {
     	nodos.add(nodoNuevo);
     	return nodoNuevo;
     }
-    
+    /**
+     * Comprueba si en la lista de nodos existe un nodo con 
+     *     el nombre ingresado
+     * @param nombre : String con el nombre.
+     * @return true en caso de encontrarlo, false en caso contrario.
+     */
     public Boolean existeNodo(String nombre) {
     	if(nodos != null) {
 	    	for(Integer i = 0; i < nodos.size(); i++) {
@@ -51,7 +78,10 @@ public class Grafo {
     	}
     	return false;
     }
-    
+    /**
+     * Crea el grafo agregando los nodos por medio de consultas a porlog
+     * Agrega el nombre al nodo, la posicion X, Y y la arista con otros nodos.
+     */
     public void crearGrafo() {
 
     	//Crea los nodos
