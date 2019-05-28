@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.jpl7.Term;
 
 import datos.Consultas;
+import datos.ManejoPL;
 
 import java.util.Set; 
 import estructuraGrafo.Grafo;
@@ -38,14 +39,20 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
 
-
+/**
+ * Clase Principal encargada de administrar todos los gráficos y 
+ * funciones principales del programa.
+ *
+ */
 public class Principal extends Application implements EventHandler<ActionEvent>{
 	
+	//Atributos Estáticos
 	private static final int ANCHO = 1000;
 	private static final int LARGO = 600;
 	private static final int NODOX = 40;
 	private static final int NODOY = 20;
 	
+	//Atributos de la clase
 	private Pane layoutPrincipal= new Pane();
 	private Pane layoutAgregar= new Pane();
 	private Stage primary;
@@ -59,19 +66,27 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	private List<String> ruta = new ArrayList<String>();
 	private Label rutaSeleccionada;
 	private Consultas consulta = new Consultas();
+	private ManejoPL editor;
 
-	
+	/**
+	 * Main del Programa, se encarga de correr la ventana principal
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		grafoCiudades.crearGrafo();
 		Principal ventana = new Principal();
 		launch(args);
 	}
 
+	/**
+	 * Sobrecarga de la clase EventHandler, inicializa los escenarios
+	 * y las funciones a utilizar
+	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primary = primaryStage;
 		principalScene = new Scene(layoutPrincipal, ANCHO, LARGO);
-		secondScene = new Scene(layoutAgregar, 600, 250);
+		secondScene = new Scene(layoutAgregar, 600, 400);
 		primaryStage.setTitle("DrWazeLog");	
 		
 		
@@ -98,7 +113,13 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	}
 	
 	
+	/**
+	 * Función encargada de dibujar el grafo en pantalla.
+	 * Realiza la consulta de los nodos y aristas y obtiene las
+	 * posiciones para graficarlos.
+	 */
 	public void dibujaGrafo() {
+		
 		grafoCiudades.crearGrafo();
 		List<Nodo> listaNodosGrafo = grafoCiudades.getNodos();
 
@@ -113,6 +134,9 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 			posYactual = listaNodosGrafo.get(i).getPosY();
 		
 			//Agrega los pesos de cada arista
+			listaLineas.clear();
+			listaDistancias.clear();
+			listaFlechas.clear();
 			if(listaNodosGrafo.get(i).getAristas() != null) {				
 				for(Integer j = 0; j < listaNodosGrafo.get(i).getAristas().size(); j++) {		
 					posXdestino = listaNodosGrafo.get(i).getAristas().get(j).getDestino().getPosX();
@@ -146,6 +170,10 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		}	
 	}
 	
+	/**
+	 * Función encargada de agregar la ruta cada vez que el usuario da 
+	 * click a un nodo en pantalla.
+	 */
 	public void crearRutaMouse() {
 		
 	      Set<Map.Entry<Rectangle, String>> setKey = nodosMap.entrySet(); 
@@ -159,7 +187,6 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 							&& event.getSceneY() >= i.getKey().getY() && event.getSceneY() <= i.getKey().getY()+NODOY*2) {
 						agregarRutas(i.getValue());					}
 				}
-				System.out.println(ruta);
 			} 
 	      };  
 		
@@ -168,6 +195,11 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	      }    
     }
 	
+	/**
+	 * Función encargada de agregar a la lista de ruta los lugares 
+	 * que el usuario desea.
+	 * @param lugar lugar seleccionado por el usuario.
+	 */
 	public void agregarRutas(String lugar) {
 		if(ruta.isEmpty()) {
 			ruta.add(0, lugar);
@@ -186,6 +218,12 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		}
 	}
 	
+	/**
+	 * Función encargada de mostrar en pantalla una etiqueta con la
+	 * ruta seleccionada para el usuario, también posee los efectos 
+	 * del texto al pasar el ratón y realizar la consulta al darle
+	 * click
+	 */
 	public void agregarRutaEtiqueta() {
 		layoutPrincipal.getChildren().remove(rutaSeleccionada);
 		rutaSeleccionada = factoria.dibujaLabel(50, 560, ruta);
@@ -218,8 +256,6 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 				for(Integer i = 1; i < mejorRuta.size()-1; i++) {
 					rutaFinal += mejorRuta.get(i) + ", ";
 				}
-				System.out.println(rutaFinal);
-				
 				Alert alert = new Alert(AlertType.INFORMATION);
 				alert.setTitle("¡Ruta Encontrada!");
 				alert.setHeaderText("La mejor ruta y su distancia es:");
@@ -233,6 +269,11 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	    rutaSeleccionada.addEventHandler(MouseEvent.MOUSE_CLICKED, eventHandler);
 	}
 	
+	/**
+	 * Crea la escena donde se muestran las opciones para agregar un nuevo
+	 * lugar o una nueva arista.
+	 * @throws FileNotFoundException error al encontrar la ruta de las imágenes.
+	 */
 	public void crearMenu() throws FileNotFoundException {
 		Image image = new Image(new FileInputStream("img/agregarLugar.png"));
 		ImageView imageView = new ImageView(image); 
@@ -250,15 +291,248 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	    
 	    layoutPrincipal.getChildren().addAll(btnAgregar);
 
-	    btnAgregar.setOnAction(e -> primary.setScene(secondScene));
+	    btnAgregar.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				primary.setScene(secondScene);
+				primary.show();
+			}
+	    });
 	    anadirLugar();
 	}
 	
-	public void anadirLugar() {
-		HBox txtNodo = factoria.crearCajaTexto(200, 10);
-		Label lblNodo = factoria.dibujaLabel(5, 10, "Nombre del Nuevo Lugar");
-		layoutAgregar.getChildren().addAll(txtNodo, lblNodo);
+	/**
+	 * Función encargada de agregar un nuevo lugar cuando el usuario
+	 * lo desee, posee las validaciones necesarias para agregar lugares 
+	 * que ya existen entre otros.
+	 * @throws FileNotFoundException
+	 */
+	public void anadirLugar() throws FileNotFoundException {
+		Image logo;
+		Image fondo;
+		//Gráficos
+
+		fondo = new Image(new FileInputStream("img/fondoAgregar.jpg"), 600, 800, false, false);
+		logo = new Image(new FileInputStream("img/DrWazeLog_Logo.png"), 100, 100, false, false);
+		Label lblAgregaNuevoLugar = factoria.dibujaLabel(10, 5, "Agregar Nuevo Lugar");
+		ImageView fondoImg = new ImageView(fondo);
+		ImageView logoImg = new ImageView(logo);
+		logoImg.setX(500);
+		logoImg.setY(325);
+		TextField txtNodo = factoria.crearCajaTexto(200, 30);
+		Label lblNodo = factoria.dibujaLabel(10, 30, "Nombre del Nuevo Lugar: ");
+		TextField txtArista = factoria.crearCajaTexto(200, 75);
+		Label lblArista = factoria.dibujaLabel(10, 75, "Destino(s): ");
+		Button btnAgregar = new Button("Agregar");
+		Label lblAgregados = factoria.dibujaLabel(10, 250, "");
+		Label lblDistancia = factoria.dibujaLabel(10, 125, "Distancia: ");
+		TextField txtDistancia = factoria.crearCajaTexto(200, 125);
+		Label lblPosX = factoria.dibujaLabel(10, 175, "Posición en X: ");
+		TextField txtPosX = factoria.crearCajaTexto(200, 175);
+		Label lblPosY = factoria.dibujaLabel(10, 225, "Posición en Y: ");
+		TextField txtPosY = factoria.crearCajaTexto(200, 225);
+		lblAgregaNuevoLugar.setTextFill(Color.RED);
+	    btnAgregar.setMaxSize(100, 40);  
+	    btnAgregar.setLayoutX(370);
+	    btnAgregar.setLayoutY(225);
+	    
+	    //Agregar nuevas aristas
+		List<String> listaAristas = new ArrayList<String>();
+		List<String> listaDistancias = new ArrayList<String>();
+		btnAgregar.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override public void handle(ActionEvent e) {
+		    	layoutAgregar.getChildren().remove(lblAgregados);
+		        String aristaNueva = txtArista.getText();
+		        String distanciaNueva = txtDistancia.getText();
+		    	if(txtArista.getText().length() != 0 && txtDistancia.getText().length() != 0) {
+			    	txtArista.setText("");
+			    	txtDistancia.setText("");
+			        for(String i : nodosMap.values()) {
+			        	if(aristaNueva.equals(i)) {
+			        		if(!listaAristas.isEmpty()) {
+			            		for(Integer j = 0; j <listaAristas.size(); j++) {
+			            			if(listaAristas.get(j).equals(aristaNueva)) {
+			            				break;
+			            			}else if(j == listaAristas.size()-1) {
+			            				listaAristas.add(aristaNueva);
+			            				listaDistancias.add(distanciaNueva);
+			            			}
+			            		}
+			        		}else {
+			        			listaAristas.add(aristaNueva);
+			        			listaDistancias.add(distanciaNueva);		        		}
+			        	}
+			        }
+			        lblAgregados.setText(listaAristas.toString());
+			        layoutAgregar.getChildren().add(lblAgregados);
+		    	}else {
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("¡Error!");
+					alert.setHeaderText("Campos en Blanco");
+					alert.setContentText("Debe añadir vertice y distancia");
+					alert.showAndWait();
+		    	}
+		    }		    
+		});
+		
+		layoutAgregar.getChildren().addAll(fondoImg, txtNodo, lblNodo, logoImg, txtArista, lblArista, 
+				btnAgregar, lblDistancia, txtDistancia,lblPosX,txtPosX,lblPosY,txtPosY, lblAgregaNuevoLugar);
+		//Agregar el nuevo Lugar
+		
+		Button btnAceptar = new Button("Aceptar"); 
+		btnAceptar.setMaxSize(100, 40);  
+	    btnAceptar.setLayoutX(450);
+	    btnAceptar.setLayoutY(225);
+	    
+	    btnAceptar.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				if(txtNodo.getText().length() != 0 && txtPosX.getText().length() != 0 && txtPosY.getText().length() != 0) {
+					if(revisaNodos(txtNodo.getText())) {
+						String nuevaLinea = "arista(";
+						String nuevoVertice = "vertice(" + txtNodo.getText() + ", "+ txtPosX.getText()+ ", "+ txtPosY.getText()+").";
+						editor.ModificarFichero(nuevoVertice, "%AgregaVertice");
+						for(Integer i = 0; i < listaAristas.size(); i++) {
+							nuevaLinea += txtNodo.getText()+", "+listaAristas.get(i)+", "+listaDistancias.get(i)+").";
+							editor.ModificarFichero(nuevaLinea, "%AgregaArista");
+							nuevaLinea = "arista(";
+						}
+						
+						txtNodo.setText("");
+						txtDistancia.setText("");
+						txtPosX.setText("");
+						txtPosY.setText("");
+						txtArista.setText("");
+						listaAristas.clear();
+					}else {
+						Alert alert = new Alert(AlertType.INFORMATION);
+						alert.setTitle("¡Error!");
+						alert.setHeaderText("Imposible añadir nodo");
+						alert.setContentText("El nodo agregado ya existe");
+						alert.showAndWait();
+					}
+
+				primary.setScene(principalScene);
+//				layoutPrincipal.getChildren().clear();
+				primary.show();
+				}
+			}
+	    });
+	    agregarArista();
+	    layoutAgregar.getChildren().add(btnAceptar);
+	}
 	
+	/**
+	 * Función encargada de revisar si el nodo ya existe.
+	 * @param nombre nombre del lugar a revisar.
+	 * @return true si no es encuentra, false si ya existe.
+	 */
+	public Boolean revisaNodos(String nombre) {
+		for(String i : nodosMap.values()) {
+			if(nombre.equals(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Función encargada de agregar una nueva arista cuando el usuario
+	 * lo desee, posee las validaciones necesarias para agregar aristas
+	 * entre lugares existentes.
+	 */
+	public void agregarArista() {
+		Label lblAgregaArista = factoria.dibujaLabel(10, 275, "Agregar Nuevo Camino");
+		TextField txtInicio = factoria.crearCajaTexto(100, 300);
+		Label lblInicio = factoria.dibujaLabel(10, 300, "Inicio: ");
+		TextField txtDestino = factoria.crearCajaTexto(100, 360);
+		Label lblDestino = factoria.dibujaLabel(10, 360, "Destino: ");
+		TextField txtDistancia = factoria.crearCajaTexto(100, 330);
+		Label lblDistancia = factoria.dibujaLabel(10, 330, "Distancia: ");
+		
+		lblAgregaArista.setTextFill(Color.RED);
+		
+		Button btnAgregar = new Button("Agregar Camino");
+		
+	    btnAgregar.setMaxSize(250, 250);  
+	    btnAgregar.setLayoutX(255);
+	    btnAgregar.setLayoutY(356);
+	    
+	    btnAgregar.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				Alert alert = new Alert(AlertType.INFORMATION);
+				String inicial = txtInicio.getText();
+				String destino = txtDestino.getText();
+				String pesoNuevo = txtDistancia.getText();
+				String pesoViejo = "";
+				String aristaNueva = "arista(" + inicial + ", " + destino + ", " 
+						+ pesoNuevo + ").";
+
+				if(!revisaNodos(inicial) && !revisaNodos(destino)
+						&& txtDistancia.getText().length() != 0) {
+					if(revisaAristas(inicial, destino)) {
+						alert.setTitle("¡Alerta!");
+						alert.setHeaderText("Ya existe un camino");
+						alert.showAndWait();
+					}else {
+						txtDistancia.setText("");
+						txtInicio.setText("");
+						txtDestino.setText("");
+						
+						if(revisaAristas(destino, inicial)) {
+							Map<String, Term>[] aristasDestino = consulta.solicitarAristas(destino);
+							for(Integer i = 0; i < aristasDestino.length; i++) {
+								if(aristasDestino[i].get("Y").toString().equals(inicial)) {
+									pesoViejo = aristasDestino[i].get("Z").toString();
+									break;
+								}
+							}
+							alert.setTitle("¡Ya existe una distancia!");
+							alert.setHeaderText("Se añadió el camino con la distancia predefinida");
+							alert.showAndWait();
+							aristaNueva = "arista(" + inicial + ", " + destino + ", " 
+									+ pesoViejo + ").";
+						editor.ModificarFichero(aristaNueva, "%AgregaArista");	
+						}else {
+							alert.setTitle("¡Éxito!");
+							alert.setHeaderText("Se añadió el nuevo camino");
+							alert.showAndWait();
+							aristaNueva = "arista(" + inicial + ", " + destino + ", " 
+										+ pesoNuevo + ").";
+							editor.ModificarFichero(aristaNueva, "%AgregaArista");	
+						}
+					}
+				}else {
+					alert.setTitle("¡Error!");
+					alert.setHeaderText("Imposible añadir camino");
+					alert.setContentText("El lugar de inicio o destino no existe o la distancia es inválida");
+					alert.showAndWait();
+				}
+			}
+	    });
+		
+		layoutAgregar.getChildren().addAll(txtInicio, lblInicio, txtDestino, lblDestino, txtDistancia, 
+				lblDistancia, lblAgregaArista, btnAgregar);
+	}
+	
+	/**
+	 * Función que revisa si la arista ya existe entre dos lugares.
+	 * @param inicio lugar de inicio.
+	 * @param destino lugar de destino.
+	 * @return true si existe, false si no.
+	 */
+	public Boolean revisaAristas(String inicio, String destino) {
+		Map<String, Term>[] aristasInicio = consulta.solicitarAristas(inicio);
+		
+		for(Integer i = 0; i < aristasInicio.length; i++) {
+			if(aristasInicio[i].get("Y").toString().equals(destino)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

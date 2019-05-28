@@ -24,26 +24,24 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 
+/**
+ * Clase encargada de producir diferentes elementos gráficos
+ * solicitados por el programador.
+ */
 public class GraficosFactoria {
 	
+	//Atributos
 	private ArrayList<Color> listaColores = new ArrayList<Color>();
 	String texto = "";
-	Random rand = new Random();
-			
-    public Circle crearCirculo(Integer posX, Integer posY, Integer radio) {
-        final Circle circle = new Circle(radio);
-        
-        circle.setStroke(Color.FORESTGREEN);
-        circle.setStrokeWidth(5);
-        circle.setStrokeType(StrokeType.INSIDE);
-        circle.setFill(Color.AZURE);
-        circle.relocate(0, 0);
-		circle.setLayoutX(posX);
-		circle.setLayoutY(posY);
-
-        return circle;
-    }
+	Random rand = new Random();			
     
+	/**
+	 * Función que crea un ovalo para ser utilizado sobre la interfaz.
+	 * @param posX posición sobre el eje X donde se desea colocar.
+	 * @param posY posición sobre el eje Y donde se desea colocar.
+	 * @param medida medida del ancho y largo que se desea.
+	 * @return un objeto de tipo Rectangle con los parámetros requeridos.
+	 */
     public Rectangle crearOvalo(Integer posX, Integer posY, Integer medida) {
     	final Rectangle ovalo = new Rectangle(posX, posY, medida + 40, medida+5);
     
@@ -64,6 +62,15 @@ public class GraficosFactoria {
     	return ovalo;
     }
     
+    /**
+     * 
+     * Función que crea un Texto para ser utilizado sobre la interfaz.
+     * @param texto lo que se desea que diga.
+     * @param posX posición sobre el eje X donde se desea colocar.
+     * @param posY posición sobre el eje Y donde se desea colocar.
+     * @param tamano tamaño de la letra
+     * @return un objeto de tipo Text con los parámetros requeridos.
+     */
     public Text crearTexto(String texto, Integer posX, Integer posY, Integer tamano) {
     	if(texto.charAt(0) == '\'') {
     		texto = texto.substring(1, texto.length()-1);
@@ -78,6 +85,14 @@ public class GraficosFactoria {
 		return text;
     }
     
+    /**
+     * Función que crea una línea para ser utilizada en la interfaz.
+     * @param inicioX posición inicial sobre el eje X.
+     * @param inicioY posición inicial sobre el eje Y.
+     * @param finalX posición final sobre el eje X.
+     * @param finalY posición final sobre el eje Y.
+     * @return un objeto de tipo Line con los parámetros requeridos.
+     */
     public Line dibujaArista(Integer inicioX, Integer inicioY, Integer finalX, Integer finalY) {
     	Line lineaAux = new Line(inicioX, inicioY, finalX, finalY);
     	lineaAux.setStroke(Color.GREEN);
@@ -87,6 +102,14 @@ public class GraficosFactoria {
     	return lineaAux;
     }
     
+    /**
+     * Función que crea una etiqueta para ser utilizada en la interfaz.
+     * Esta función realiza un formato de ruta con la lista brindada.
+     * @param posX posición sobre el eje X donde se desea colocar.
+     * @param posY posición sobre el eje Y donde se desea colocar.
+     * @param ruta lista con la ruta a mostrar,
+     * @return Una etiqueta con formato de ruta
+     */
     public Label dibujaLabel(Integer posX, Integer posY, List<String> ruta) {
     	texto = "";
     	for(String i : ruta) {
@@ -103,6 +126,13 @@ public class GraficosFactoria {
     	return etiqueta;
     }
     
+    /**
+     * Función que crea una etiqueta para ser utilizada en la interfaz.
+     * @param posX posición sobre el eje X donde se desea colocar.
+     * @param posY posición sobre el eje Y donde se desea colocar.
+     * @param texto texto a mostrar en la etiqueta.
+     * @return un objeto de tipo Label con los parámetros requeridos.
+     */
     public Label dibujaLabel(Integer posX, Integer posY, String texto) {
     	Label etiqueta = new Label(texto);
     	etiqueta.setFont(new Font("Comic Sans MS", 15));
@@ -110,17 +140,24 @@ public class GraficosFactoria {
     	etiqueta.setLayoutY(posY);
     	etiqueta.setScaleX(1);
     	etiqueta.setScaleY(1);
+    	etiqueta.setTextFill(Color.WHITE);
 		return etiqueta;
     }
     
-    public HBox crearCajaTexto(Integer posX, Integer posY) {
+    /**
+     * Función que crea una caja de texto para ser utilizada en la interfaz.
+     * @param posX posición sobre el eje X donde se desea colocar.
+     * @param posY posición sobre el eje Y donde se desea colocar.
+     * @return un objeto de tipo TextField en la posición dada.
+     */
+    public TextField crearCajaTexto(Integer posX, Integer posY) {
     	
         TextField textField = new TextField();
-        HBox hbox = new HBox(textField);
-        hbox.setLayoutX(posX);
-        hbox.setLayoutY(posY);
         
-        return hbox;
+        textField.setLayoutX(posX);
+        textField.setLayoutY(posY);
+        
+        return textField;
     }
     
 }

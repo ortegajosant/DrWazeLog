@@ -1,4 +1,4 @@
-package reader;
+package datos;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -72,7 +72,6 @@ public class ManejoPL {
 	     try {
 	         if(Ffichero.exists()){
 	           Ffichero.delete(); 
-	           System.out.println("Fichero Borrado con Exito");
 	         }
 	     } catch (Exception ex) {
 	          System.out.println(ex.getMessage());
@@ -85,9 +84,9 @@ public class ManejoPL {
 	 * @param Snuevalinea : String con la nueva informacion de la linea.
 	 * @param numLinea : Integer con el numero de linea a modificar.
 	 */
-    public static  void ModificarFichero(String Snuevalinea, Integer numLinea){    
+    public static  void ModificarFichero(String Snuevalinea, String tipo){    
     	
-        String SnombFichNuev = "auxiliar"+numLinea+".pl";
+        String SnombFichNuev = "auxiliar.pl";
         File FficheroNuevo=new File(SnombFichNuev);
         try {
 			FficheroNuevo.createNewFile();
@@ -101,10 +100,11 @@ public class ManejoPL {
                 String Slinea;
                 Integer cont = 0;
                 while((Slinea=Flee.readLine())!=null) {
-                	if(cont != numLinea) {
+                	if(!Slinea.equals(tipo)) {
                 		EscribirFichero(FficheroNuevo, Slinea);    
                 	}
                 	else {
+                		EscribirFichero(FficheroNuevo, Slinea);
                 		EscribirFichero(FficheroNuevo, Snuevalinea);
                 	}
                 	cont++;
@@ -120,5 +120,4 @@ public class ManejoPL {
              System.out.println(ex.getMessage());
         }
     }
-
 }
