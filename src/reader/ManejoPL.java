@@ -7,12 +7,26 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-
+/**
+ * Clase que define los metodos para el manejo de archivo prolog
+ * Incluye los metodos 
+ * 				-LeerFichero
+ * 				-EscribirFichero
+ *				-BorrarFichero
+ *				-Modificar fichero.
+ *- Incluye las variables.
+ *			-Ffichero.
+ *			-NOMBRE
+ */
 public class ManejoPL {
 	
 	static File Ffichero;
 	private static final String NOMBRE = "GRAFO.pl";
 	
+	/**
+	 * Abre el fichero y lee lo que hay en su interior.
+	 * @param nombreFichero : String con el nombre del fichero a abrir.
+	 */
 	public static  void LeerFichero(String nombreFichero){
 	   try {
 		   Ffichero = new File(nombreFichero);
@@ -33,6 +47,11 @@ public class ManejoPL {
 	   }
 	 }
 	
+	/**
+	 * Crea o utiliza un fichero existente para descargar una cadena de entrada.
+	 * @param Ffichero1 : Fichero en el que se descargara la un string de salida.
+	 * @param SCadena : String con la informacion que se quiere guardar en el fichero.
+	 */
 	public static void EscribirFichero(File Ffichero1,String SCadena){
 		  try {
 		           if(!Ffichero1.exists()){
@@ -46,6 +65,10 @@ public class ManejoPL {
 		       } 
 		}
 	
+	/**
+	 * Borra un fichero, recibe el fichero ya abierto.
+	 * @param Ffichero : fichero a borrar.
+	 */
 	public static  void BorrarFichero(File Ffichero){
 	     try {
 	         if(Ffichero.exists()){
@@ -57,6 +80,12 @@ public class ManejoPL {
 	     }
 	}
 	
+	/**
+	 * Modifica un fichero, crea un fichero auxiliar para agregar la nueva informacion 
+	 *  y la existente en el fichero modificando la linea indicada.
+	 * @param Snuevalinea : String con la nueva informacion de la linea.
+	 * @param numLinea : Integer con el numero de linea a modificar.
+	 */
     public static  void ModificarFichero(String Snuevalinea, Integer numLinea){    
     	
         String SnombFichNuev = "auxiliar"+numLinea+".pl";

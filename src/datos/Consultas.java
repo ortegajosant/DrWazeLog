@@ -7,8 +7,21 @@ import java.util.Map;
 import org.jpl7.Query;
 import org.jpl7.Term;
 
+/**
+ * Clase encargada de realizar las diferentes consultas al archivo
+ *  de prolog .
+ *  		Contiene los metodos:
+ *  			- solicitarVertices
+ *  			- solicitarAristas
+ *  			- solicitarPosiciones
+ *  			- solicitarRuta
+ */
 public class Consultas {
 
+	/**
+	 * Funcion encargada de consultar los vertices del archivo prolog.
+	 * @return Mapa con el nombre de los vertices.
+	 */
 	public Map<String, Term>[] solicitarVertices(){
 		String conexion = "consult('GRAFO.pl')";
 		Query con = new Query(conexion);
@@ -22,6 +35,12 @@ public class Consultas {
 		return todosVertices;
 	}
 	
+	/**
+	 * Consulta al archivo prolog sobre las aritas de un vertice
+	 * @param lugar : nombre del vertice a consultar
+	 * @return  Mapa con los nombres de vertices que conectar con lugar 
+	 * 			y su distancia.
+	 */
 	public Map<String, Term>[] solicitarAristas(String lugar){
 		String conexion = "consult('GRAFO.pl')";
 		Query con = new Query(conexion);
@@ -33,7 +52,11 @@ public class Consultas {
 
 		return todasAristas;
 	}
-	
+	/**
+	 * Consulta al archivo de prolog sobre las posicones en pantalla del vertice.
+	 * @param lugar : nombre del vertice a consultar
+	 * @return Mapa con las posiciones del vertice
+	 */
 	public Map<String, Term>[] solicitarPosiciones(String lugar){
 		String conexion = "consult('GRAFO.pl')";
 		Query con = new Query(conexion);
@@ -45,7 +68,12 @@ public class Consultas {
 		
 		return todasPosiciones;
 	}
-	
+	/**
+	 * Realiza la consulta sobre la ruta para llegar a un destino
+	 * 	pasando por diferentes puntos.
+	 * @param caminos : Lista con los nombres de los vertices a visitar
+	 * @return Lista de string con los nombres de los vertices que forman la ruta.
+	 */
 	public ArrayList<String> solicitarRuta(List<String> caminos){
 		String conexion = "consult('GRAFO.pl')";
 		Query con = new Query(conexion);
