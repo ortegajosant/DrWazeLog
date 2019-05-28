@@ -20,9 +20,8 @@ import java.io.OutputStreamWriter;
  */
 public class ManejoPL {
 	
-	static File Ffichero;
 	private static final String NOMBRE = "GRAFO.pl";
-	
+	static File Ffichero = new File(NOMBRE);
 	/**
 	 * Abre el fichero y lee lo que hay en su interior.
 	 * @param nombreFichero : String con el nombre del fichero a abrir.
