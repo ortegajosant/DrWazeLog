@@ -3,7 +3,7 @@
 % Definicion de la base de datos para el grafo
 % Se definen los vertices que pertenecen al grafo, con su respectiva
 % posicion en el mapa
-% Composición : vertice( <lugar> , <posición en x> , <posición en y> )
+% ComposiciÃ³n : vertice( <lugar> , <posiciÃ³n en x> , <posiciÃ³n en y> )
 vertice('san jose', 86, 207).
 vertice('corralillo',106, 425).
 vertice('musgo verde', 270, 355).
@@ -149,15 +149,3 @@ encontrarCamino(Inicio, Destinos, RutaFinal) :-
 buscarRuta(Inicio, Destinos, RutaFinal, Distancia):-
 	encontrarCamino(Inicio, Destinos, RutaFinal),
 	distanciaTotal(RutaFinal, Distancia), !.
-
-
-
-
-
-
-
-
-
-
-
-
