@@ -25,7 +25,7 @@ import datos.Consultas;
  * 				- crearGrafo
  */
 public class Grafo {
-    private List<Nodo> nodos;
+    private List<Nodo> nodos = new ArrayList<Nodo>();
     private Consultas consulta = new Consultas();
     /**
      * Anade un nodo a la lista para formar un grafo.
@@ -85,6 +85,7 @@ public class Grafo {
     public void crearGrafo() {
 
     	//Crea los nodos
+    	nodos.clear();
     	Map<String, Term>[] todosVertices = consulta.solicitarVertices();
 		for(Integer i = 0; i < todosVertices.length; i++) {
 			if(existeNodo(todosVertices[i].get("X").toString())){
