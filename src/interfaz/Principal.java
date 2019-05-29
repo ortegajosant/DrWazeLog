@@ -51,7 +51,7 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	private static final int LARGO = 600;
 	private static final int NODOX = 40;
 	private static final int NODOY = 20;
-	
+		
 	//Atributos de la clase
 	private Pane layoutPrincipal= new Pane();
 	private Pane layoutAgregar= new Pane();
@@ -310,7 +310,8 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	public void anadirLugar() throws FileNotFoundException {
 		Image logo;
 		Image fondo;
-		//Gráficos
+		
+		//Gráficos___________________________________________________________________________________
 
 		fondo = new Image(new FileInputStream("img/fondoAgregar.jpg"), 600, 800, false, false);
 		logo = new Image(new FileInputStream("img/DrWazeLog_Logo.png"), 100, 100, false, false);
@@ -335,6 +336,8 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	    btnAgregar.setMaxSize(100, 40);  
 	    btnAgregar.setLayoutX(370);
 	    btnAgregar.setLayoutY(225);
+
+	    //__________________________________________________________________________________________
 	    
 	    //Agregar nuevas aristas
 		List<String> listaAristas = new ArrayList<String>();
@@ -377,12 +380,27 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		
 		layoutAgregar.getChildren().addAll(fondoImg, txtNodo, lblNodo, logoImg, txtArista, lblArista, 
 				btnAgregar, lblDistancia, txtDistancia,lblPosX,txtPosX,lblPosY,txtPosY, lblAgregaNuevoLugar);
+		
 		//Agregar el nuevo Lugar
 		
 		Button btnAceptar = new Button("Aceptar"); 
+		Button btnCancelar = new Button("Cancelar");
 		btnAceptar.setMaxSize(100, 40);  
-	    btnAceptar.setLayoutX(450);
+	    btnAceptar.setLayoutX(460);
 	    btnAceptar.setLayoutY(225);
+	    
+	    btnCancelar.setMaxSize(100, 40);  
+	    btnCancelar.setLayoutX(525);
+	    btnCancelar.setLayoutY(225);
+	   
+	    btnCancelar.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				primary.setScene(principalScene);
+				primary.show();
+			}
+	    });
 	    
 	    btnAceptar.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -412,15 +430,15 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 						alert.setContentText("El nodo agregado ya existe");
 						alert.showAndWait();
 					}
-
-				primary.setScene(principalScene);
-//				layoutPrincipal.getChildren().clear();
-				primary.show();
+				
+					dibujaGrafo();
+					primary.setScene(principalScene);
+					primary.show();
 				}
 			}
 	    });
 	    agregarArista();
-	    layoutAgregar.getChildren().add(btnAceptar);
+	    layoutAgregar.getChildren().addAll(btnAceptar, btnCancelar);
 	}
 	
 	/**
@@ -450,6 +468,9 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		Label lblDestino = factoria.dibujaLabel(10, 360, "Destino: ");
 		TextField txtDistancia = factoria.crearCajaTexto(100, 330);
 		Label lblDistancia = factoria.dibujaLabel(10, 330, "Distancia: ");
+		Label lblIndicacion1 = factoria.dibujaLabel(255, 300, "Si el nombre del lugar es de más de una palabra");
+		Label lblIndicacion2 = factoria.dibujaLabel(255, 325, "utilizar comillas simples al inicio y al final.");
+		Label lblIndicacion3 = factoria.dibujaLabel(375, 350, "Ejemplo: 'san jose', cartago");
 		
 		lblAgregaArista.setTextFill(Color.RED);
 		
@@ -515,7 +536,7 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	    });
 		
 		layoutAgregar.getChildren().addAll(txtInicio, lblInicio, txtDestino, lblDestino, txtDistancia, 
-				lblDistancia, lblAgregaArista, btnAgregar);
+				lblDistancia, lblAgregaArista, btnAgregar, lblIndicacion1, lblIndicacion2, lblIndicacion3);
 	}
 	
 	/**
