@@ -115,9 +115,19 @@ oracion(S0,S):- sintagma_verbal(_,_,S0,S1),
 oracion(S0,S):- pron(Num,Pers,_,S0,S1),
     sintagma_verbal(Num,Pers,S1,S).
 
+oracion(S0,S):-
+    sintagma_verbal(_, _, S0, S1),
+    infi(S1, S2),
+    sintagma_prep(S2, S).
+
 oracion(S0,S):- pron(Num,Pers,_,S0,S1),
     sintagma_verbal(Num,Pers,S1,S2),
     sintagma_prep(S2,S).
+
+oracion(S0, S) :-
+    sintagma_verbal(_, _, S0, S1),
+    infi(S1, S2),
+    sintagma_nominal(_, _, _,S2, S).
 
 oracion(S0,S):-sintagma_verbal(_,_,S0,S).
 
@@ -235,7 +245,7 @@ verbo(singular, primera, ['camino'|S], S).
 verbo(singular, primera, ['dirijo'|S], S).
 verbo(singular, primera, ['encuentro'|S], S).
 verbo(singular, primera, ['dirijo'|S], S).
-
+verbo(singular, primera, ['debo'|S], S).
 %-----------------------------------------------
 
 %Hechos con los predicados aceptados.
@@ -323,8 +333,8 @@ imprimirLista(L,L).
 %G0 : Lista con la frase si es correcto.
 aSintac(R0,G0):- frase(R0,[]), G0 = R0.
 
-aSintac(_,G3):-write("- No le entendí ni picha"),nl,
-    write("- Por favor, intente volver a escribi su respueta"),
+aSintac(_,G3):-write("- Disculpa, no pude entenderte"),nl,
+    write("- Por favor, intenta volver a escribir su respuesta"),
     nl,tab(5),write(">"),
     leerLinea(R3),aSintac(R3,G3).
 
@@ -334,7 +344,7 @@ aSintac(_,G3):-write("- No le entendí ni picha"),nl,
 % y compruba si en la respuesta exsite un lugar del grafo.
 % Esta regla se usa para analizar si la palalabra es una palabra Clave
 % R0 : Lecutra
-% O :
+% O : Palabra clave
 analizarRes(R0,O):-buscarpClave(R0,O).
 
 % Cuando no encuetra un lugar del grafo, pide que vuelva a escribir el
@@ -346,10 +356,10 @@ analizarRes(_,O):- write("- Disculpa, no te he entendido"),nl,
 
 %------------------------------------------------------------
 
-% Regla para la buusqueda de palbras claves
+% Regla para la buusqueda de palabras claves
 buscarpClave([S0|_],S0):- pClave([S0|_],[]),!.
 
-buscarpClave([_|Resto],P):-buscarpClave(Resto,P).
+buscarpClave([_|Resto],P):- buscarpClave(Resto,P).
 
 % -----------------------------------------------------------
 
@@ -367,6 +377,15 @@ analizarResSec(['si'|_],L):- write("¿Dónde se ubica el destino intermedio"),nl,
     concatenar([O],Respuesta,L).
 
 analizarResSec(R,L):- buscarPSec(R,L).
+
+analizarResSec(R0, L) :- analizarRes(R0,PalabraClave),
+    write("- Tienes algún otro destino intermedio"),nl,
+    tab(5),write(">"),
+    leerLinea(Read1),
+    aSintac(Read1,Grama1),
+    analizarResSec(Grama1, Respuesta),
+    concatenar([PalabraClave],Respuesta,L).
+
 %-------------------------------------------------------------
 % Reglas que busca palabras secundarias
 % Tambien se encarga de hacer el arbol contoss
@@ -387,3 +406,15 @@ buscarPSec([_|S0],L):- buscarPSec(S0,L).
 
 %Regla para buscar palabras claves.
 pSec(S) :- nom(_, _,[S|_], _).
+
+
+
+
+
+
+
+
+
+
+
+
