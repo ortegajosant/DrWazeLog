@@ -1,9 +1,10 @@
+
 :- module('grafo', [arista/3, vertice/3, buscarRuta/4, concatenar/3, inversa/2]).
 
 % Definicion de la base de datos para el grafo
 % Se definen los vertices que pertenecen al grafo, con su respectiva
 % posicion en el mapa
-% Composición : vertice( <lugar> , <posición en x> , <posicion en y> )
+% ComposiciÃ³n : vertice( <lugar> , <posiciÃ³n en x> , <posicion en y> )
 %AgregaVertice
 vertice('san jose', 86, 207).
 vertice('corralillo',106, 425).
@@ -22,6 +23,7 @@ vertice('orosi',723, 444).
 % distancia entre nodos
 % Composicion : arista( <Inicio> , <Destino>, <Distancia> )
 %AgregaArista
+arista(cartago, orosi, 20).
 arista('tres rios', 'san jose', 8).
 arista('cartago', 'tres rios', 8).
 arista('cartago', 'paraiso', 10).
@@ -99,7 +101,7 @@ calcularRuta(Ruta, Distancia) :-
     assert(ruta(Ruta, Distancia)).
 
 % Se recorren todos los nodos desde un punto inicial
-% Inicio: vértice Inicial del recorrido.
+% Inicio: vÃ©rtice Inicial del recorrido.
 % Ruta: Lista con la ruta actual.
 % Distancia: Distancia actual de la ruta.
 recorrerNodos(Inicio, Ruta, Distancia) :-
@@ -109,7 +111,7 @@ recorrerNodos(Inicio, Ruta, Distancia) :-
 	recorrerNodos(Temporal,[Inicio|Ruta],Distancia + D).
 
 % Inicia el recorrido a partir de un nodo
-% Inicio: Vértice inicial.
+% Inicio: VÃ©rtice inicial.
 recorrerNodos(Inicio) :-
 	retractall(ruta(_,_)),
 	recorrerNodos(Inicio,[],0).
@@ -138,9 +140,9 @@ distanciaTotal([Primero | Ruta], Distancia):-
 	Distancia is D + Dist.
 
 % Verifica que la lista de destinos se encuentre vacia
-% Inicio: Vértice inicial.
-% Destinos: Lista de destinos, contiene un único destino final o como
-% elemento final el destino y además paradas intermedias.
+% Inicio: VÃ©rtice inicial.
+% Destinos: Lista de destinos, contiene un Ãºnico destino final o como
+% elemento final el destino y ademÃ¡s paradas intermedias.
 % RutaFinal: Lista con la ruta a seguir para completar el recorrido.
 encontrarCamino(_, [], _) :- !.
 

@@ -1,49 +1,109 @@
+:-module('WazeLog', [mainWazeLog/0]).
 :-use_module(grafo).
 
-%Comprueba que la lista L se a la inversa de L1.
-%L1 lista.
-%L lista invertida
-inversa(L1,L):- inversa(L1,[],L).
-inversa([],L,L).
-inversa([X|R],L2,L3):-inversa(R,[X|L2],L3).
-% -----------------------------------------------------------------------
-% Permite leer frases de entrada completas y preparar una lista para ser
-% evaluada en la gramatica
-% Lee frase de entrada, la separa en palabras y
-% comprueba si es correcta.
+% --------------------------------------------------------------------------------
+%           Reglas para la lectura de las frases de entrada del usuario
+% --------------------------------------------------------------------------------
+
+% Permite leer frases de entrada completas y separar en una lista de
+% palabras para ser evaluada en la gramatica. T : Incognita donde se
+% guarda la lista de salida.
+%
 
 leerLinea(T):- peek_code(X),X \== 46,
     X \== 32,
     leerLinea("",[],T).
+
+% Formas las palabras anadiendo cada caracter hasta formas una palabra.
+% P : Palabra.
+% F : Lista final donde se guardara la frase.
+% T : Incognita donde se guarda la lista una vez termiado
+%      todo el proceso.
 leerLinea(P,F,T):- peek_code(X),
     X \== 46, X \== 32,
-    get(Y), char_code(A,Y),to_lower(A).
-    atomic_concat(P,A,Result),
+    get(Y), char_code(A,Y),downcase_atom(A,LowerCase),
+    atomic_concat(P,LowerCase,Result),
     leerLinea(Result,F,T).
+
+%  Anade las palabras a la lista F cuando se encuentra con un espacio
+%    en la lectura de la frase.
+%P : Palabra completa.
+%F : Lista con la frase.
+%T : Lista de resultado final.
 leerLinea(P,F,T):- peek_code(X),X == 32,
     get0(X),
     leerLinea("",[P|F],T).
+
+%   Cuando la lectura del caracter de entrada es un punto
+%   se termina la lectura de la frase, de esta regla se envia la frase
+%   final a una comprobacion de palabras por las palabras que son una
+%   sola pero estan separadas por un espacio.
+%P : ultima palabra.
+%F : Lista con la frase final invertida sin la ultima palabra.
+%T : Lista donde se dara la respuesta.
 leerLinea(P,F,T):- peek_code(X),
     X == 46,get0(X),
-    inversa([P|F],T).
-
+    unirPClave([P|F],[],T).
 
 % -----------------------------------------------------------------------
-% Gramatica permitida en la conversacion.
-% Analizador para el proyecto
-%-----------------------------------------------
+% Conjunto de reglas que comprobaran que la frase no tenga separadas
+% palabras que deben ir unidas. Se apoya en grafo para verificar que
+% ninguna de las palabras que forman los nombres de los nodos se haya
+% seperado. Se recorre la lista de la frase de entrada uniendo cada
+% palabra con la siguiente y se consulta si forma parte de una arista. P
+% : primera palabra de la frase. Resto : resto de la frase de entrada.
+% ListaFinal : Lista donde se almacena la frase con las palabras unidas
+% e invirtiendo la lista para que quede ordenada correctamente.
+unirPClave([P|Resto],ListaFinal,LAux):- atomic_concat(' ',P, R0),
+    siguienteLista(Resto,S),atomic_concat(S,R0,Pfinal),
+    arista(Pfinal,_,_),restoLista(Resto,Cola),unirPClave(Cola,[Pfinal|ListaFinal],LAux).
+
+unirPClave([],ListaFinal, ListaFinal).
+
+unirPClave([P|Resto],ListaFinal,LAux):-unirPClave(Resto,[P|ListaFinal],LAux).
+
+% Comprueba  el siguiente de una lista.
+siguienteLista([S|_],S).
+%Comprueba el resto de una lista.
+restoLista([_|Resto],Resto).
+
+
+% --------------------------------------------------------------------------------------------
+%                          Gramatica permitida en la conversacion.
+% -----------------------------------------------------------------------
+
+
+% Reglas que debe cumplir una frase para ser aceptada.
+% S0 : Lista que contiene la frase
+% S : Normalmente lista vacia, apartir de esta lista sera formara la
+%    frase desde los terminales para comprobar si es correcta.
 frase(S0,S):- oracion(S0,S).
+
 frase(S0,S):- sintagma_prep(S0,S).
+
 frase(S0,S):- respuesta(S0,S).
+
 frase(S0,S):- saludos(S0,S1),
     oracion(S1,S).
+
 frase(S0,S):- pClave(S0,S).
 %-----------------------------------------------
+
+%Reglas para un saludo correcto.
+% S0 : Lista con palabra que puede formar un saludo.
+% S : Lista con el resto de la frase.
 saludos(S0,S):-saludo(S0,S1),
     nom(_,_,S1,S).
 saludos(S0,S):-saludo(S0,S).
 
 %-----------------------------------------------
+
+% Reglas que debe seguir una oracion para estar formada
+% correcta.
+% S0 : Lista con una oracion correcta.
+% S : Lista con la otra parte de la frase.
+oracion(S0, S1):- sintagma_nominal(_, _, _, S0, S1).
+
 oracion(S0,S):- sintagma_nominal(Num,Pers,_,S0,S1),
     sintagma_verbal(Num,Pers,S1,S).
 
@@ -62,6 +122,14 @@ oracion(S0,S):- pron(Num,Pers,_,S0,S1),
 oracion(S0,S):-sintagma_verbal(_,_,S0,S).
 
 %-----------------------------------------------
+
+% Regla que debe cumplir un sintagma nominal para estar formada
+%   correctamente.
+% Num : numero a que se refiere la palabra.
+% Pers : persona a la que se dirije la palabra.
+% Gen : Genero de la palabra.
+% S0 : Lista con un sintagma nominal.
+% S : Lista con el resto de la frase.
 sintagma_nominal(Num,Pers,Gen,S0,S):- det(Num,Gen,Pers,S0,S1),
     nom(Num,Gen,S1,S).
 
@@ -70,6 +138,12 @@ sintagma_nominal(_,_,_,S0,S):- nom(_,_,S0,S).
 sintagma_nominal(_,_,_,S0,S):- pClave(S0,S).
 
 %-----------------------------------------------
+
+%Reglas para que un sintagma verbal se correcto.
+%Num : numero de la palabra.
+%Pers : conjuacion de la palabra
+%S0 : Lista con sintagma preposicional.
+%S : Lista con el resto de la frase.
 sintagma_verbal(Num,Pers,S0,S):- verbo(Num,Pers,S0,S).
 
 sintagma_verbal(Num,Pers,S0,S):- verbo(Num,Pers,S0,S1),
@@ -79,48 +153,141 @@ sintagma_verbal(_,_,S0,S):- verbo(_,_,S0,S1),
     sintagma_prep(S1,S).
 
 %-----------------------------------------------
+
+%Regla de un sintagma preposicional correcto.
+%S0 : Lista con un sintagma preposicional.
+%S : Lista con el resto de la frase.
 sintagma_prep(S0,S):- prep(S0,S1),
     sintagma_nominal(_,_,_,S1,S).
-%-----------------------------------------------
+
+% ---------------------------------------------
+%                    Terminales
+% Cada terminal esta clasificado en Numero, Genero, Persona segun
+%     corresonda
+%----------------------------------------------
+
+% Hechos que contienen los determinates aceptados.
+% det(Numero, Genero, [determinante]).
 det(singular,masculino,tercera,['el'|S],S).
-det(singular,fenenino,tercera,['al'|S],S).
+det(singular,masculino,tercera,['al'|S],S).
+det(singular, femenino, tercera, ['la'|S], S).
+
 %-----------------------------------------------
+
+%Hechos con los nombres que forman el nucleo de los
+%  sintagmas nominales.
+%  nom(Numero, Genero,[nombre]).
 nom(singular,masculino,['wazeLog'|S],S).
 nom(singular,masculino,['automercado'|S],S).
 nom(singular,masculino,['supermercado'|S],S).
+nom(singular,masculino,['estadio'|S],S).
+nom(singular, femenino, ['plaza'|S], S).
+nom(singular, femenino, ['fuente'|S], S).
+nom(singular, femenino, ['universidad'|S], S).
+nom(singular, femenino, ['escuela'|S], S).
+nom(singular, masculino, ['colegio'|S],S).
+nom(singular, masculino, ['palí'|S], S).
+nom(singular, masculino, ['megasuper'|S], S).
+nom(singular, femenino, ['casa'|S], S).
+nom(singular, masculino, ['hospital'|S], S).
+nom(singular, femenino, ['iglesia'|S], S).
+nom(singular, masculino, ['templo'|S], S).
+
 %-----------------------------------------------
+
+%Terminal de una frase formada por una respuesta cerrada.
+% respuesta([respuesta])
 respuesta(['si'|S],S).
 respuesta(['no'|S],S).
+
 %-----------------------------------------------
+
+%Hechos con los infinitos aceptados.
+%infi([infinitivo]).
 infi(['pasar'|S],S).
+infi(['asistir'|S], S).
+infi(['viajar'|S], S).
+infi(['ir'|S], S).
+
 %-----------------------------------------------
+
+%Hechos con los pronombres aceptados.
+%pron(Numero, Persona, [pronombre]).
 pron(singular,primera,_,['me'|S],S).
 pron(_,tercera,_,['se'|S],S).
+
 %-----------------------------------------------
+
+%Hechos que definen los verbos aceptados.
+%verbo(Numero, Persona,[verbo]).
 verbo(singular,primera,['estoy'|S],S).
 verbo(singular,primera,['tengo'|S],S).
 verbo(singular,_,['gustaría'|S],S).
 verbo(singular,tercera,['ubica'|S],S).
 verbo(singular,primera,['ubico'|S],S).
+verbo(singular, primera, ['voy'|S],S).
+verbo(singular, primera, ['desplazo'|S], S).
+verbo(plural, primera, ['vamos'|S], S).
+verbo(plural, primera, ['estamos'|S], S).
+verbo(plural, primera, ['tenemos'|S], S).
+verbo(singular, primera, ['manejo'|S], S).
+verbo(singular, primera, ['camino'|S], S).
+verbo(singular, primera, ['dirijo'|S], S).
+verbo(singular, primera, ['encuentro'|S], S).
+verbo(singular, primera, ['dirijo'|S], S).
+
 %-----------------------------------------------
+
+%Hechos con los predicados aceptados.
+%prep([predicado])
 prep(['en'|S],S).
+prep(['a'|S], S).
+prep(['para'|S], S).
+prep(['por'|S], S).
+prep(['hasta'|S],S).
+prep(['hacia'|S], S).
+
 %-----------------------------------------------
+
+%Hecho con el unico conector que es aceptado.
+%conector(conector).
 conector(['que'|S],S).
+
+
 %-----------------------------------------------
+
+%Hechos que definen los saludos permitidos.
+%saludo([saludo]).
 saludo(['hola'|S],S).
 saludo(['buenos días',S],S).
 saludo(['buenas noches'|S],S).
+saludo(['tuanis'|S], S).
 
-%oracion([el,hombre,come,la,manzana],[]).
 %------------------------------------------------
+
+%Regla para buscar nucleos de un sintagma nominal en
+% las palabras que estan en el grafo.
+% Tambien permite buscar palabras claves.
+% pClave([palabra clave]).
 pClave([S0|S],S):- arista(S0,_,_).
 
 
-% ------------------------------------------------------------------------
-% Tercera parte
-%
+% -------------------------------------------------------------------------------------------------
+% Parte principal del programa
+% -------------------------------------------------------------
 
-mainWLog():- tab(30),write("* * *"),nl,
+%Regla principal y unica que se puede usar desde una consulta.
+%Manda a correr la funcion que hace inicar WazeLog
+mainWazeLog:- run.
+
+% Detiene a WazeLog cuando el usuario lo indique.
+mainWazeLog(['no'|_]):-!.
+% Vuleve a ejecutar a WazeLog para una buena consulta.
+mainWazeLog(['si'|_]):- run.
+
+% Regla principal, para llegar al final las reglas que la componen deben
+% ser verdaderas.
+run :- tab(30),write("* * *"),nl,
     write("---  BIENVENIDO A WazeLog LA MEJOR FORMA DE LLEGAR A SU DESTINO"),
     nl,nl,write("- Por Favor indíqueme dónde se encuentra."),nl,
     tab(5),write(">"),
@@ -128,35 +295,46 @@ mainWLog():- tab(30),write("* * *"),nl,
 
     nl,write("- Muy bien, ¿Cuál es su destino?"),nl,
     tab(5),write(">"),
-    leerLinea(R1),aSintac(R1,G1),write(G1),analizarRes(G1,D),
+    leerLinea(R1),aSintac(R1,G1),analizarRes(G1,D),
 
     nl,write("- Excelente, ¿Tiene algún destino intermedio?"),
     nl,tab(5),write(">"),
-    leerLinea(R3),aSintac(R3,G3),analizarResSec(G3,L),nl,
+    leerLinea(R2),aSintac(R2,G2),analizarResSec(G2,L),nl,
 
     inversa([D|L],L0),buscarRuta(O,L0,Rf,Dis),
-    write("- Su ruta sería "),imprimirLista(Rf,[]),write(" la distancia es "),
+    write("- Su ruta sería "),imprimirLista(Rf,[]),write("la distancia es "),
     write(Dis),write("km"),nl,
     write("- Gracias por usar WazeLog"),
-    nl,nl,mainWLog().
+    nl,nl,write("- Desea buscar otra ruta en WazeLog"),nl,
+    tab(5),write(">"),
+    leerLinea(R3),aSintac(R3,G3),write(G3),mainWazeLog(G3).
 
+% ----------------------------------------------------------
 
-
-
-imprimirLista([R|Resto],L):- write(R),write(","),tab(1), imprimirLista(Resto,L).
+%Regla qe escribe puntos de una lista en pantalla.
+imprimirLista([R|Resto],L):- write(R),write(","),tab(1),
+    imprimirLista(Resto,L).
 
 imprimirLista(L,L).
 %-----------------------------------------------------------
+
+%Define las reglas para el analisis sitacta.
+%R0 : Lecto de la entreda del usario.
+%G0 : Lista con la frase si es correcto.
 aSintac(R0,G0):- frase(R0,[]), G0 = R0.
 
-aSintac(_,G3):-write("No le entendí ni picha"),nl,
-    write("Por favor, intente volver a escribi su respueta"),
+aSintac(_,G3):-write("- No le entendí ni picha"),nl,
+    write("- Por favor, intente volver a escribi su respueta"),
     nl,tab(5),write(">"),
     leerLinea(R3),aSintac(R3,G3).
 
 %-----------------------------------------------------------
+
 % Recibe una lista que representa la respuesta del usuario
 % y compruba si en la respuesta exsite un lugar del grafo.
+% Esta regla se usa para analizar si la palalabra es una palabra Clave
+% R0 : Lecutra
+% O :
 analizarRes(R0,O):-buscarpClave(R0,O).
 
 % Cuando no encuetra un lugar del grafo, pide que vuelva a escribir el
@@ -166,22 +344,39 @@ analizarRes(_,O):- write("- Disculpa, no te he entendido"),nl,
     tab(5),write(">"),
     leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O).
 
+%------------------------------------------------------------
+
+% Regla para la buusqueda de palbras claves
 buscarpClave([S0|_],S0):- pClave([S0|_],[]),!.
 
 buscarpClave([_|Resto],P):-buscarpClave(Resto,P).
 
 % -----------------------------------------------------------
+
+%Analizador de respuestas secundarios como destinos intermendios,
 analizarResSec(['no'|_],_).
 
-analizarResSec(R,L):- buscarPSec(R,L).
+analizarResSec(['si'|_],L):- write("¿Dónde se ubica el destino intermedio"),nl,
+    tab(5),write(">"),
+    leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O),
+    write("- Tienes algún otro destino intermedio"),nl,
+    tab(5),write(">"),
+    leerLinea(Read1),
+    aSintac(Read1,Grama1),
+    analizarResSec(Grama1, Respuesta),
+    concatenar([O],Respuesta,L).
 
+analizarResSec(R,L):- buscarPSec(R,L).
+%-------------------------------------------------------------
+% Reglas que busca palabras secundarias
+% Tambien se encarga de hacer el arbol contoss
 buscarPSec([S0|_],L):- pSec(S0),nl,
-    write("¿Dónde se encuentra "),
+    write("- ¿Dónde se encuentra "),
     nom(Num,Gen,[S0],[]), det(Num,Gen,_,[Det|_],[]),
     write(Det),tab(1),write(S0),write("?"),nl,
     tab(5),write(">"),
     leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O),
-    write("Tienes algún otro destino intermedio"),nl,
+    write("- Tienes algún otro destino intermedio"),nl,
     tab(5),write(">"),
     leerLinea(Read1),aSintac(Read1,Grama1),
     analizarResSec(Grama1, Respuesta),
@@ -189,6 +384,6 @@ buscarPSec([S0|_],L):- pSec(S0),nl,
 
 buscarPSec([_|S0],L):- buscarPSec(S0,L).
 
-pSec(supermercado).
 
-anadir(T,Lista,[T|Lista]).
+%Regla para buscar palabras claves.
+pSec(S) :- nom(_, _,[S|_], _).
