@@ -358,8 +358,6 @@ analizarRes(_,O):- write("- Disculpa, no te he entendido"),nl,
     tab(5),write(">"),
     leerLinea(R0),aSintac(R0,G0),analizarRes(G0,O).
 %-----------------------------------------------------------
-% Permite aceptar palabras claves secundarias en las respuestas
-% principales.
 analizarResAux([S0|_],PClave):- pSec(S0),nl,
     write("- ¿Dónde se encuentra "),
     sustantivo(Num,Gen,[S0],[]), det(Num,Gen,_,[Det|_],[]),
