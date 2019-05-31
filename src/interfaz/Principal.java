@@ -244,7 +244,7 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		    	rutaSeleccionada.setScaleY(1);
 		    }
 		});
-		//______________________________________________________________________
+		//________________________
 		
 		//Evento al clickear la ruta.
 		EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>(){ 
@@ -311,7 +311,7 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		Image logo;
 		Image fondo;
 		
-		//Gráficos___________________________________________________________________________________
+		//Gráficos_____________________________
 
 		fondo = new Image(new FileInputStream("img/fondoAgregar.jpg"), 600, 800, false, false);
 		logo = new Image(new FileInputStream("img/DrWazeLog_Logo.png"), 100, 100, false, false);
@@ -337,7 +337,7 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 	    btnAgregar.setLayoutX(370);
 	    btnAgregar.setLayoutY(225);
 
-	    //__________________________________________________________________________________________
+	    //______________________________
 	    
 	    //Agregar nuevas aristas
 		List<String> listaAristas = new ArrayList<String>();
@@ -345,9 +345,9 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		btnAgregar.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
 		    	layoutAgregar.getChildren().remove(lblAgregados);
-		        String aristaNueva = txtArista.getText();
-		        String distanciaNueva = txtDistancia.getText();
-		    	if(txtArista.getText().length() != 0 && txtDistancia.getText().length() != 0) {
+		        String aristaNueva = txtArista.getText().toLowerCase();
+		        String distanciaNueva = txtDistancia.getText().toLowerCase();
+		    	if(txtArista.getText().toLowerCase().length() != 0 && txtDistancia.getText().toLowerCase().length() != 0) {
 			    	txtArista.setText("");
 			    	txtDistancia.setText("");
 			        for(String i : nodosMap.values()) {
@@ -397,6 +397,9 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 
 			@Override
 			public void handle(ActionEvent arg0) {
+				dibujaGrafo();
+				agregarRutaEtiqueta();
+				crearRutaMouse();
 				primary.setScene(principalScene);
 				primary.show();
 			}
@@ -406,13 +409,15 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 
 			@Override
 			public void handle(ActionEvent arg0) {
-				if(txtNodo.getText().length() != 0 && txtPosX.getText().length() != 0 && txtPosY.getText().length() != 0) {
-					if(revisaNodos(txtNodo.getText())) {
+				if(txtNodo.getText().toLowerCase().length() != 0 && txtPosX.getText().toLowerCase().length() != 0 && txtPosY.getText().toLowerCase().length() != 0) {
+					if(revisaNodos(txtNodo.getText().toLowerCase())) {
 						String nuevaLinea = "arista(";
-						String nuevoVertice = "vertice(" + txtNodo.getText() + ", "+ txtPosX.getText()+ ", "+ txtPosY.getText()+").";
+						String nuevoVertice = "vertice(" + txtNodo.getText().toLowerCase() + ", "+ txtPosX.getText().toLowerCase()+ ", "
+						+ txtPosY.getText().toLowerCase()+").";
+						System.out.println(nuevoVertice);
 						editor.ModificarFichero(nuevoVertice, "%AgregaVertice");
 						for(Integer i = 0; i < listaAristas.size(); i++) {
-							nuevaLinea += txtNodo.getText()+", "+listaAristas.get(i)+", "+listaDistancias.get(i)+").";
+							nuevaLinea += txtNodo.getText().toLowerCase()+", "+listaAristas.get(i)+", "+listaDistancias.get(i)+").";
 							editor.ModificarFichero(nuevaLinea, "%AgregaArista");
 							nuevaLinea = "arista(";
 						}
@@ -432,6 +437,8 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 					}
 				
 					dibujaGrafo();
+					agregarRutaEtiqueta();
+					crearRutaMouse();
 					primary.setScene(principalScene);
 					primary.show();
 				}
@@ -485,15 +492,15 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 			@Override
 			public void handle(ActionEvent arg0) {
 				Alert alert = new Alert(AlertType.INFORMATION);
-				String inicial = txtInicio.getText();
-				String destino = txtDestino.getText();
-				String pesoNuevo = txtDistancia.getText();
+				String inicial = txtInicio.getText().toLowerCase();
+				String destino = txtDestino.getText().toLowerCase();
+				String pesoNuevo = txtDistancia.getText().toLowerCase();
 				String pesoViejo = "";
 				String aristaNueva = "arista(" + inicial + ", " + destino + ", " 
 						+ pesoNuevo + ").";
 
 				if(!revisaNodos(inicial) && !revisaNodos(destino)
-						&& txtDistancia.getText().length() != 0) {
+						&& txtDistancia.getText().toLowerCase().length() != 0) {
 					if(revisaAristas(inicial, destino)) {
 						alert.setTitle("¡Alerta!");
 						alert.setHeaderText("Ya existe un camino");
@@ -556,4 +563,3 @@ public class Principal extends Application implements EventHandler<ActionEvent>{
 		return false;
 	}
 }
-
